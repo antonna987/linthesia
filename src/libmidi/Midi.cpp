@@ -238,7 +238,7 @@ void Midi::BuildTempoTrack() {
 
   // Copy over all our tempo events
   unsigned long previous_absolute_pulses = 0;
-  for (map<unsigned long, MidiEvent>::const_iterator i = tempo_events.begin(); 
+  for (map<unsigned long, MidiEvent>::const_iterator i = tempo_events.begin();
        i != tempo_events.end(); ++i) {
 
     unsigned long absolute_pulses = i->first;
