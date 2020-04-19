@@ -216,9 +216,12 @@ void PlayingState::Listen() {
     MidiEvent ev = m_state.midi_in->Read();
     if (m_state.midi_in->ShouldReconnect())
     {
-        m_state.midi_in->Reconnect();
+      m_state.midi_in->Reconnect();
+
+      if (m_state.midi_out)
         m_state.midi_out->Reconnect();
-        continue;
+
+      continue;
     }
 
 
@@ -493,7 +496,10 @@ void PlayingState::Update() {
     microseconds_t new_time = cur_time + 5000000;
     m_state.midi->GoTo(new_time);
     m_required_notes.clear();
-    m_state.midi_out->Reset();
+
+    if (m_state.midi_out)
+      m_state.midi_out->Reset();
+
     m_keyboard->ResetActiveKeys();
     m_notes = m_state.midi->Notes();
     m_notes_history.clear();
@@ -509,7 +515,10 @@ void PlayingState::Update() {
     microseconds_t new_time = cur_time - 5000000;
     m_state.midi->GoTo(new_time);
     m_required_notes.clear();
-    m_state.midi_out->Reset();
+
+    if (m_state.midi_out)
+      m_state.midi_out->Reset();
+
     m_keyboard->ResetActiveKeys();
     m_notes = m_state.midi->Notes();
     m_notes_history.clear();
@@ -548,7 +557,10 @@ void PlayingState::Update() {
         m_state.midi->GoTo(new_time);
         m_required_notes.clear();
         m_pressed_notes.clear();
-        m_state.midi_out->Reset();
+
+        if (m_state.midi_out)
+          m_state.midi_out->Reset();
+
         m_keyboard->ResetActiveKeys();
         TranslatedNoteSet def = m_state.midi->Notes();
 
