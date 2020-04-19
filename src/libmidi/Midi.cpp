@@ -426,6 +426,7 @@ void Midi::GoTo(microseconds_t microsecond_song_position) {
 //    return;
 //}
 
+  microsecond_song_position = std::max(-m_microsecond_lead_in, microsecond_song_position);
   m_microsecond_song_position = microsecond_song_position;
 
   const size_t track_count = m_tracks.size();
