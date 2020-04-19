@@ -78,7 +78,6 @@ private:
   bool m_paused;
 
   KeyboardDisplay *m_keyboard;
-  microseconds_t m_show_duration;
   TranslatedNoteSet m_notes;
   TranslatedNoteSet m_notes_history;
 

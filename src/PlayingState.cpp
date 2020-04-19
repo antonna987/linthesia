@@ -113,11 +113,6 @@ void PlayingState::Init() {
     }
   }
 
-  // This many microseconds of the song will
-  // be shown on the screen at once
-  const static microseconds_t DefaultShowDurationMicroseconds = 3250000;
-  m_show_duration = DefaultShowDurationMicroseconds;
-
   m_keyboard = new KeyboardDisplay(KeyboardSize88, GetStateWidth() - Layout::ScreenMarginX*2, CalcKeyboardHeight());
 
   // Hide the mouse cursor while we're playing
@@ -461,19 +456,11 @@ void PlayingState::Update() {
     m_note_offset -= 12;
 
   if (IsKeyPressed(KeyUp)) {
-    m_show_duration -= 250000;
-
-    const static microseconds_t MinShowDuration = 250000;
-    if (m_show_duration < MinShowDuration)
-      m_show_duration = MinShowDuration;
+    m_state.show_duration.decrease();
   }
 
   if (IsKeyPressed(KeyDown)) {
-    m_show_duration += 250000;
-
-    const static microseconds_t MaxShowDuration = 10000000;
-    if (m_show_duration > MaxShowDuration)
-      m_show_duration = MaxShowDuration;
+    m_state.show_duration.increase();
   }
 
   if (IsKeyPressed(KeyLeft)) {
@@ -639,7 +626,7 @@ void PlayingState::Draw(Renderer &renderer) const {
   renderer.ForceTexture(0);
 
   // Draw a keyboard, fallen keys and background for them
-  m_keyboard->Draw(renderer, key_tex, note_tex, Layout::ScreenMarginX, 0, m_notes, m_show_duration,
+  m_keyboard->Draw(renderer, key_tex, note_tex, Layout::ScreenMarginX, 0, m_notes, m_state.show_duration,
                    m_state.midi->GetSongPositionInMicroseconds(), m_state.track_properties,
                    m_state.midi->GetBarLines());
 

@@ -45,6 +45,36 @@ struct SongStatistics {
 
 };
 
+// This many microseconds of the song will be shown on the screen at once
+class ShowDuration {
+public:
+  ShowDuration() :
+    duration(DefaultShowDurationMicroseconds)
+    {}
+
+  void increase() {
+    duration += StepShowDurationMicroseconds;
+    duration = std::min(duration, MaxShowDurationMicroseconds);
+  }
+
+  void decrease() {
+    duration -= StepShowDurationMicroseconds;
+    duration = std::max(duration, MinShowDurationMicroseconds);
+  }
+
+  operator microseconds_t() const {
+    return duration;
+  }
+
+private:
+  static const microseconds_t DefaultShowDurationMicroseconds = 3250000;
+  static const microseconds_t StepShowDurationMicroseconds = 250000;
+  static const microseconds_t MinShowDurationMicroseconds = 250000;
+  static const microseconds_t MaxShowDurationMicroseconds = 10000000;
+  
+  microseconds_t duration;
+};
+
 struct SharedState {
 
   SharedState() :
@@ -65,6 +95,7 @@ struct SharedState {
 
   int song_speed;
   double base_volume;
+  ShowDuration show_duration;
 
   std::vector<Track::Properties> track_properties;
   std::string song_title;
