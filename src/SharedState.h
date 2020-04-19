@@ -71,7 +71,7 @@ private:
   static const microseconds_t StepShowDurationMicroseconds = 250000;
   static const microseconds_t MinShowDurationMicroseconds = 250000;
   static const microseconds_t MaxShowDurationMicroseconds = 10000000;
-  
+
   microseconds_t duration;
 };
 

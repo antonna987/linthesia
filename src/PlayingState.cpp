@@ -347,7 +347,7 @@ void PlayingState::Listen() {
     // Display a pressed key by an user
     // Display a colored key, if it is pressed correctly
     // Otherwise display a grey key
-    // 
+    //
     // If we comment this code, than a missed user pressed key will not shown.
     // But correct presed key will be shown as usual.
     m_keyboard->SetKeyActive(note_name, true, note_color);
@@ -571,7 +571,7 @@ void PlayingState::Update() {
           m_notes.insert(n);
         }
 
-        // To avoid checks for keys that start before and stop after new_time 
+        // To avoid checks for keys that start before and stop after new_time
         eraseUntilTime(new_time);
       }
       else
