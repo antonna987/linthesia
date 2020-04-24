@@ -21,28 +21,41 @@
 #include "GameState.h"
 #include "TitleState.h"
 #include "DpmsThread.h"
+#include "SongLibState.h"
 
 #include "libmidi/Midi.h"
 #include "libmidi/MidiUtil.h"
 #include <gconfmm.h>
 
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <sys/stat.h>
+
+#include <iostream>
+#include <libgen.h>
+
 #ifndef GRAPHDIR
-#define GRAPHDIR "../graphics"
+  #define GRAPHDIR "../graphics"
 #endif
 
 using namespace std;
 
 GameStateManager* state_manager;
 
+char *sqlite_db_str;
+sqlite3 *db;
+
 const static string application_name = "Linthesia";
 const static string friendly_app_name = STRING("Linthesia " <<
-					       LinthesiaVersionString);
+                                               LinthesiaVersionString);
 
 const static string error_header1 = "Linthesia detected a";
 const static string error_header2 = " problem and must close:\n\n";
 const static string error_footer = "\n\nIf you don't think this should have "
-  "happened, please\ncontact Oscar (on Linthesia sourceforge site) and\n"
-  "describe what you were doing when the problem\noccurred. Thanks.";
+  "happened, please fill a bug report on : \nhttps://github.com/linthesia/linthesia\n\nThank you.";
+
+const static int vsync_interval = 1;
 
 class EdgeTracker  {
 public:
@@ -290,6 +303,7 @@ bool DrawingArea::on_configure_event(GdkEventConfigure* event) {
   glLoadIdentity();
   gluOrtho2D(0, get_width(), 0, get_height());
 
+  state_manager->SetStateDimensions(get_width(), get_height());
   state_manager->Update(window_state.JustActivated());
 
   glwindow->gl_end();
@@ -306,7 +320,7 @@ bool DrawingArea::on_expose_event(GdkEventExpose* event) {
   glCallList(1);
 
   Renderer rend(get_gl_context(), get_pango_context());
-  rend.SetVSyncInterval(1);
+  rend.SetVSyncInterval(vsync_interval);
   state_manager->Draw(rend);
 
   // swap buffers.
@@ -326,7 +340,7 @@ bool DrawingArea::GameLoop() {
     state_manager->Update(window_state.JustActivated());
 
     Renderer rend(get_gl_context(), get_pango_context());
-    rend.SetVSyncInterval(1);
+    rend.SetVSyncInterval(vsync_interval);
 
     state_manager->Draw(rend);
   }
@@ -334,80 +348,72 @@ bool DrawingArea::GameLoop() {
   return true;
 }
 
+char* getCmdOption(char ** begin, char ** end, const std::string & option)
+{
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end)
+    {
+        return *itr;
+    }
+    return 0;
+}
+
+bool cmdOptionExists(char** begin, char** end, const std::string & option)
+{
+    return std::find(begin, end, option) != end;
+}
+
+std::string getExePath()
+// https://stackoverflow.com/questions/23943239/how-to-get-path-to-current-exe-file-on-linux
+{
+  char result[ PATH_MAX ];
+  ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
+  return std::string( dirname(result), (count > 0) ? count : 0 );
+}
+
 int main(int argc, char *argv[]) {
   Gtk::Main main_loop(argc, argv);
   Gtk::GL::init(argc, argv);
 
-  state_manager = new GameStateManager(
-		  	  	  	  	  Compatible::GetDisplayWidth(),
-						  Compatible::GetDisplayHeight()
-					);
-
   try {
-    string command_line("");
+    string file_opt("");
 
     UserSetting::Initialize(application_name);
 
-    if (argc > 1)
-      command_line = string(argv[1]);
+    if (cmdOptionExists(argv, argv+argc, "-f"))
+      file_opt = string(getCmdOption(argv, argv + argc, "-f"));
+
+    // TODO: parse from command line args
+    bool windowed = cmdOptionExists(argv, argv+argc, "-w");
+    bool fullscreen = cmdOptionExists(argv, argv+argc, "-W");
 
     // strip any leading or trailing quotes from the filename
     // argument (to match the format returned by the open-file
     // dialog later).
-    if (command_line.length() > 0 &&
-	command_line[0] == '\"')
-      command_line = command_line.substr(1, command_line.length() - 1);
+    if (file_opt.length() > 0 &&
+        file_opt[0] == '\"')
+      file_opt = file_opt.substr(1, file_opt.length() - 1);
 
-    if (command_line.length() > 0 &&
-	command_line[command_line.length()-1] == '\"')
-      command_line = command_line.substr(0, command_line.length() - 1);
-
+    if (file_opt.length() > 0 &&
+        file_opt[file_opt.length()-1] == '\"')
+      file_opt = file_opt.substr(0, file_opt.length() - 1);
+    
     Midi *midi = 0;
 
     // attempt to open the midi file given on the command line first
-    if (command_line != "") {
+    if (file_opt != "") {
       try {
-	midi = new Midi(Midi::ReadFromFile(command_line));
+        midi = new Midi(Midi::ReadFromFile(file_opt));
       }
 
       catch (const MidiError &e) {
-	string wrapped_description = STRING("Problem while loading file: " <<
-					    command_line <<
-					    "\n") + e.GetErrorDescription();
-	Compatible::ShowError(wrapped_description);
+        string wrapped_description = STRING("Problem while loading file: " <<
+                                            file_opt <<
+                                            "\n") + e.GetErrorDescription();
+        Compatible::ShowError(wrapped_description);
 
-	command_line = "";
-	midi = 0;
-      }
-    }
-
-    // if midi couldn't be opened from command line filename or there
-    // simply was no command line filename, use a "file open" dialog.
-    if (command_line == "") {
-      while (!midi) {
-	string file_title;
-	FileSelector::RequestMidiFilename(&command_line, &file_title);
-
-	if (command_line != "") {
-	  try {
-	    midi = new Midi(Midi::ReadFromFile(command_line));
-	  }
-	  catch (const MidiError &e) {
-	    string wrapped_description = \
-	      STRING("Problem while loading file: " <<
-		     file_title <<
-		     "\n") + e.GetErrorDescription();
-	    Compatible::ShowError(wrapped_description);
-
-	    midi = 0;
-	  }
-	}
-
-	else {
-	  // they pressed cancel, so they must not want to run
-	  // the app anymore.
-	  return 0;
-	}
+        file_opt = "";
+        midi = 0;
       }
     }
 
@@ -415,8 +421,8 @@ int main(int argc, char *argv[]) {
 
     // try double-buffered visual
     glconfig = Gdk::GL::Config::create(Gdk::GL::MODE_RGB    |
-        			       Gdk::GL::MODE_DEPTH  |
-        			       Gdk::GL::MODE_DOUBLE);
+                                       Gdk::GL::MODE_DEPTH  |
+                                       Gdk::GL::MODE_DOUBLE);
     if (!glconfig) {
       cerr << "*** Cannot find the double-buffered visual.\n"
            << "*** Trying single-buffered visual.\n";
@@ -425,56 +431,144 @@ int main(int argc, char *argv[]) {
       glconfig = Gdk::GL::Config::create(Gdk::GL::MODE_RGB |
                                          Gdk::GL::MODE_DEPTH);
       if (!glconfig) {
-	string description = STRING(error_header1 <<
-				    " OpenGL" <<
-				    error_header2 <<
-				    "Cannot find any OpenGL-capable visual." <<
-				    error_footer);
-	Compatible::ShowError(description);
-	return 1;
+        string description = STRING(error_header1 <<
+                                    " OpenGL" <<
+                                    error_header2 <<
+                                    "Cannot find any OpenGL-capable visual." <<
+                                    error_footer);
+        Compatible::ShowError(description);
+        return 1;
       }
     }
+    
+    /* Loading the Sqlite Library
+    */
+    string tmp_user_db_str = UserSetting::Get("sqlite_db", "");
+
+    if (tmp_user_db_str. empty() ) {
+        // no user pref : let's create one !
+        struct passwd *pw = getpwuid(getuid());
+        sqlite_db_str = strcat(pw->pw_dir, "/.local/linthesia");
+        const int dir_err = mkdir(sqlite_db_str, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        if (-1 == dir_err)
+        {
+          fprintf(stderr, "Error creating directory : %s\n", sqlite_db_str);
+          exit(1);
+        }
+        sqlite_db_str = strcat(sqlite_db_str, "/music.sqlite");
+        UserSetting::Set("sqlite_db", sqlite_db_str);
+    } else {
+        // user pref exist : let's use it !
+        sqlite_db_str = (char*) tmp_user_db_str.c_str();
+    }
+
+    if (sqlite3_open(sqlite_db_str, &db)) {
+      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+      return(0);
+    } else {
+      // fprintf(stderr, "Opened database successfully\n");
+      sqlite3_close(db);
+    }
+
+    const int default_sw = 1024;
+    const int default_sh = 768;
+    int sh = Compatible::GetDisplayHeight();
+    int sw = Compatible::GetDisplayWidth();
+    state_manager = new GameStateManager(sw, sh);
 
     Gtk::Window window;
+    window.set_default_size(default_sw, default_sh);
     DrawingArea da(glconfig);
     window.add(da);
     window.show_all();
-    window.move(Compatible::GetDisplayLeft() + Compatible::GetDisplayWidth()/2, Compatible::GetDisplayTop() + Compatible::GetDisplayHeight()/2);
 
+    window.set_title(friendly_app_name);
+
+    struct stat st;
+    chdir (getExePath().c_str());  
+    
+    if ( !stat((GRAPHDIR +  std::string("/linthesia.png")).c_str(),&st) == 0) {
+       fprintf(stderr, "FATAL : File not found : make install not done ?\n");
+       cout << (GRAPHDIR +  std::string("/linthesia.png")) << "\n";
+    //   exit(0);
+    }
+
+    window.set_icon_from_file(GRAPHDIR + std::string("/linthesia.png"));
+
+    // Lauch fullscreen if asked for it OR if neither fullllscreen and windowed is asked AND we are not in jail.
+    bool injail = true; // FIXME : how to detect we are injail without doing something nasty ?
+                        // Jail is launched by AppImage, within :
+                        //   firejail --quiet --noprofile --net=none --appimage ./"$FILENAME" &
+
+    if (fullscreen || ( (!windowed && !fullscreen) && (!injail ) ) ) {
+        window.fullscreen();
+    }
+    else {
+        if (sw < default_sw) {
+          fprintf (stderr, "Your display width is smaller than window size : %d < %d\n", sw, default_sw);
+        }
+
+        if (sh < default_sh) {
+          fprintf (stderr, "Your display height is smaller than window size : %d < %d\n", sh, default_sh);
+        }
+
+        window.maximize();
+    }
 
     // Init DHMS thread once for the whole program
     DpmsThread* dpms_thread = new DpmsThread();
 
     // do this after gl context is created (ie. after da realized)
     SharedState state;
-    state.song_title = FileSelector::TrimFilename(command_line);
-    state.midi = midi;
     state.dpms_thread = dpms_thread;
-    state_manager->SetInitialState(new TitleState(state));
-
-    window.fullscreen();
-    window.set_title(friendly_app_name);
-
-    window.set_icon_from_file(string(GRAPHDIR) + "/app_icon.ico");
-
-    // get refresh rate from user settings
-    string key = "refresh_rate";
-    int rate = 65;
-    string user_rate = UserSetting::Get(key, "");
-    if (user_rate.empty()) {
-      user_rate = STRING(rate);
-      UserSetting::Set(key, user_rate);
+    if (midi) {
+      state.song_title = FileSelector::TrimFilename(file_opt);
+      state.midi = midi;
+      state_manager->SetInitialState(new TitleState(state));
+    }
+    else {
+      // if midi couldn't be opened from command line filename or there
+      // simply was no command line filename, use a song-lib.
+      state_manager->SetInitialState(new SongLibState(state));
     }
 
+    // get refresh rate from user settings
+    int default_rate = 30;
+
+    string user_rate = UserSetting::Get("refresh_rate", "");
+
+    if (! user_rate.empty() && std::stoi(user_rate) > default_rate) {
+      fprintf (stdout, "WARNING :: Your refresh_rate is set to %d. I recommand using %d.\n", std::stoi(user_rate), default_rate);
+      fprintf (stdout, "           You may update it using gconf-2.\n");
+    }
+
+    if (user_rate.empty()) {
+      user_rate = STRING(default_rate);
+      UserSetting::Set("refresh_rate", user_rate);
+    }
     else {
       istringstream iss(user_rate);
-      if (not (iss >> rate)) {
-        Compatible::ShowError("Invalid setting for '"+ key +"' key.\n\nReset to default value when reload.");
-        UserSetting::Set(key, "");
+      if (not (iss >> default_rate)) {
+        Compatible::ShowError("Invalid setting for 'refresh_rate' key.\n\nReset to default value when reload.");
+        UserSetting::Set("refresh_rate", "");
       }
     }
 
-    Glib::signal_timeout().connect(sigc::mem_fun(da, &DrawingArea::GameLoop), 1000/rate);
+    Glib::signal_timeout().connect(sigc::mem_fun(da, &DrawingArea::GameLoop), 1000/std::stoi(user_rate));
+
+    UserSetting::Set("min_key", "");
+    UserSetting::Set("max_key", "");
+
+    if (cmdOptionExists(argv, argv+argc, "--min-key")) {
+      string min_key = STRING(getCmdOption(argv, argv + argc, "--min-key"));
+      UserSetting::Set("min_key", min_key);
+    }
+
+    if (cmdOptionExists(argv, argv+argc, "--max-key")) {
+      string max_key = STRING(getCmdOption(argv, argv + argc, "--max-key"));
+      UserSetting::Set("max_key", max_key);
+    }
+
 
     main_loop.run(window);
     window_state.Deactivate();
@@ -486,41 +580,41 @@ int main(int argc, char *argv[]) {
 
   catch (const LinthesiaError &e) {
     string wrapped_description = STRING(error_header1 <<
-					error_header2 <<
-					e.GetErrorDescription() <<
-					error_footer);
+                                        error_header2 <<
+                                        e.GetErrorDescription() <<
+                                        error_footer);
     Compatible::ShowError(wrapped_description);
   }
 
   catch (const MidiError &e) {
     string wrapped_description = STRING(error_header1 <<
-					" MIDI" <<
-					error_header2 <<
-					e.GetErrorDescription() <<
-					error_footer);
+                                        " MIDI" <<
+                                        error_header2 <<
+                                        e.GetErrorDescription() <<
+                                        error_footer);
     Compatible::ShowError(wrapped_description);
   }
 
   catch (const Gnome::Conf::Error& e) {
     string wrapped_description = STRING(error_header1 <<
-					" Gnome::Conf::Error" <<
-					error_header2 <<
-					e.what() <<
-					error_footer);
+                                        " Gnome::Conf::Error" <<
+                                        error_header2 <<
+                                        e.what() <<
+                                        error_footer);
     Compatible::ShowError(wrapped_description);
   }
 
   catch (const exception &e) {
     string wrapped_description = STRING("Linthesia detected an unknown "
-					"problem and must close!  '" <<
-					e.what() << "'" << error_footer);
+                                        "problem and must close!  '" <<
+                                        e.what() << "'" << error_footer);
     Compatible::ShowError(wrapped_description);
   }
 
   catch (...) {
     string wrapped_description = STRING("Linthesia detected an unknown "
-					"problem and must close!" <<
-					error_footer);
+                                        "problem and must close!" <<
+                                        error_footer);
     Compatible::ShowError(wrapped_description);
   }
 

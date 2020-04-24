@@ -22,9 +22,21 @@ enum Texture {
   ButtonBackToTitle,
   ButtonPlaySong,
 
+  ButtonNotPlayed,
+  ButtonPlayedAuto,
+  ButtonYouPlay,
+  ButtonYouPlaySilent,
+  ButtonLearning,
+  ButtonLearningSilent,
+  ButtonPlayedHidden,
+  
   InputBox,
   OutputBox,
   SongBox,
+  DirBox,
+  ButtonDirBack,
+  ButtonPageBack,
+  ButtonPageNext,
 
   TrackPanel,
 

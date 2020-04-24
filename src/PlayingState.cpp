@@ -13,12 +13,14 @@
 #include "Textures.h"
 #include "CompatibleSystem.h"
 
+#include <stdio.h>
 #include <string>
 #include <iomanip>
 
 #include "StringUtil.h"
 #include "MenuLayout.h"
 #include "TextWriter.h"
+#include "UserSettings.h"
 
 #include "libmidi/Midi.h"
 #include "libmidi/MidiTrack.h"
@@ -40,14 +42,17 @@ void PlayingState::SetupNoteState() {
 
     n.state = AutoPlayed;
     n.retry_state = AutoPlayed;
-    if (isUserPlayableTrack(n.track_id))
+    if (isUserPlayableTrack(n.track_id) && isNoteInPlayableRange(n.note_id))
     {
       n.state = UserPlayable;
       n.retry_state = UserPlayable;
     }
-
     m_notes.insert(n);
   }
+}
+
+bool PlayingState::isNoteInPlayableRange(int note_number) {
+  return note_number >= MinPlayableNote && note_number <= MaxPlayableNote;
 }
 
 void PlayingState::ResetSong() {
@@ -112,6 +117,22 @@ void PlayingState::Init() {
       m_any_you_play_tracks = true;
     }
   }
+
+  string min_key = UserSetting::Get("min_key", "");
+  if (strtol(min_key.c_str(), NULL, 10) > 0) {
+    MinPlayableNote = strtol(min_key.c_str(), NULL, 10);
+    printf("Set minimal key to %d\n", MinPlayableNote);
+  }
+  string max_key = UserSetting::Get("max_key", "");
+  if (strtol(max_key.c_str(), NULL, 10) > 0) {
+    MaxPlayableNote = strtol(max_key.c_str(), NULL, 10);
+    printf("Set maximal key to %d\n", MaxPlayableNote);
+  }
+
+  // This many microseconds of the song will
+  // be shown on the screen at once
+  const static microseconds_t DefaultShowDurationMicroseconds = 3250000;
+  m_show_duration = DefaultShowDurationMicroseconds;
 
   m_keyboard = new KeyboardDisplay(KeyboardSize88, GetStateWidth() - Layout::ScreenMarginX*2, CalcKeyboardHeight());
 
@@ -358,6 +379,11 @@ void PlayingState::Listen() {
   }
 }
 
+void PlayingState::Resize() {
+    delete  m_keyboard;
+    m_keyboard = new KeyboardDisplay(KeyboardSize88, GetStateWidth() - Layout::ScreenMarginX*2, CalcKeyboardHeight());
+}
+
 void PlayingState::Update() {
 
   // Calculate how visible the title bar should be
@@ -396,11 +422,12 @@ void PlayingState::Update() {
   if (!m_first_update) {
     if (areAllRequiredKeysPressed())
     {
-        Play(delta_microseconds);
-//      m_should_wait_after_retry = false; // always reset onces pressed
+      Play(delta_microseconds);
+//    m_should_wait_after_retry = false; // always reset onces pressed
     }
-    else
-        m_current_combo = 0;
+    else {
+      m_current_combo = 0;
+    }
 
     Listen();
   }
@@ -574,7 +601,7 @@ void PlayingState::Update() {
 
           n.state = AutoPlayed;
           n.retry_state = AutoPlayed;
-          if (isUserPlayableTrack(n.track_id))
+          if (isUserPlayableTrack(n.track_id) && isNoteInPlayableRange(n.note_id))
           {
             n.state = UserPlayable;
             n.retry_state = findNodeState(n, old, UserPlayable);
@@ -784,7 +811,7 @@ void PlayingState::filePressedKey(int note_number, bool active, size_t track_id)
         m_state.track_properties[track_id].mode == Track::ModeLearningSilently ||
         (m_should_wait_after_retry && isUserPlayableTrack(track_id)))
     {
-        if (active)
+        if (active && isNoteInPlayableRange(note_number))
         {
             m_required_notes.insert(note_number);
         }

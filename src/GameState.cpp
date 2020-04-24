@@ -32,9 +32,21 @@ const static char* TextureResourceNames[_TextureEnumCount] = {
   "tracks_BackToTitle",
   "tracks_PlaySong",
 
+  "all_ButtonNotPlayed",
+  "all_ButtonPlayedAuto",
+  "all_ButtonYouPlay",
+  "all_ButtonYouPlaySilent",
+  "all_ButtonLearning",
+  "all_ButtonLearningSilent",
+  "all_ButtonPlayedHidden",
+
   "title_InputBox",
   "title_OutputBox",
   "title_SongBox",
+  "title_DirBox",
+  "title_BackBox",
+  "title_ButtonPageBack",
+  "title_ButtonPageNext",
 
   "trackbox", // TrackPanel
 
@@ -131,8 +143,18 @@ Tga *GameStateManager::GetTexture(Texture tex_name, bool smooth) const {
   return m_textures[tex_name];
 }
 
-void GameStateManager::KeyPress(GameKey key) {
+void GameStateManager::SetStateDimensions(int w, int h) {
+  bool dirty = (m_screen_x != w && m_screen_y != h);
+  
+  m_screen_x = w;
+  m_screen_y = h;
+  
+  if (dirty && m_current_state) {
+    m_current_state->Resize();
+  }
+}
 
+void GameStateManager::KeyPress(GameKey key) {
   m_key_presses |= static_cast<unsigned long>(key);
 }
 

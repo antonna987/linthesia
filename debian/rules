@@ -12,16 +12,16 @@ VERSION = $(shell grep LinthesiaVersionString $(SRC)/Version.h | cut -f 6 -d " "
 
 override_dh_auto_build:
 	xsltproc -o debian/linthesia.6 --param man.charmap.use.subset "0" --novalid --nonet $(DB2MAN) debian/linthesia.xml
-	$(MAKE) GRAPHDIR=/usr/share/linthesia/graphics SCRIPTDIR=/usr/bin
+	$(MAKE) GRAPHDIR=/usr/share/linthesia/graphics MUSICDIR=/usr/share/linthesia/music SCRIPTDIR=/usr/bin
 
 override_dh_install:
 	$(MAKE) install DESTDIR=debian/linthesia
 	cp extra/linthesia.desktop debian/linthesia/usr/share/applications
-	cp extra/linthesia.xpm debian/linthesia/usr/share/pixmaps
+	cp extra/linthesia.png debian/linthesia/usr/share/pixmaps
 
-override_dh_auto_clean:
-	$(RM) debian/linthesia.6
-	$(MAKE) clean
+#override_dh_auto_clean:
+#	$(RM) debian/linthesia.6
+#	$(MAKE) clean
 
 build-orig-source:
 	mkdir -p linthesia-$(VERSION)

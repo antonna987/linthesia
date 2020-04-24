@@ -25,6 +25,7 @@ public:
 protected:
   virtual void Init();
   virtual void Update();
+  virtual void Resize();
   virtual void Draw(Renderer &renderer) const;
 
 private:
@@ -41,6 +42,14 @@ private:
 
   ButtonState m_continue_button;
   ButtonState m_back_button;
+
+  ButtonState m_apply_all_not_played;
+  ButtonState m_apply_all_played_auto;
+  ButtonState m_apply_all_you_play;
+  ButtonState m_apply_all_you_play_silent;
+  ButtonState m_apply_all_learning;
+  ButtonState m_apply_all_learning_silent;
+  ButtonState m_apply_all_played_hidden;
 
   std::string m_tooltip;
 

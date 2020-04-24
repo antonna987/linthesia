@@ -1,7 +1,7 @@
 EXTRA_DIST = BUILD-DEPENDS CHANGELOG graphics extra music
 nobase_pkgdata_DATA =	graphics/app_icon.ico \
 			graphics/InterfaceButtons.tga \
-			graphics/linthesia.xpm \
+			graphics/linthesia.png \
 			graphics/play_KeyHits.tga \
 			graphics/play_KeyRail.tga \
 			graphics/play_KeysBlack.tga \
@@ -22,9 +22,20 @@ nobase_pkgdata_DATA =	graphics/app_icon.ico \
 			graphics/title_Logo.tga \
 			graphics/title_OutputBox.tga \
 			graphics/title_SongBox.tga \
+			graphics/title_DirBox.tga \
+			graphics/title_BackBox.tga \
+			graphics/title_ButtonPageBack.tga \
+			graphics/title_ButtonPageNext.tga \
 			graphics/trackbox.tga \
 			graphics/tracks_BackToTitle.tga \
 			graphics/tracks_PlaySong.tga \
+			graphics/all_ButtonNotPlayed.tga \
+			graphics/all_ButtonPlayedAuto.tga \
+			graphics/all_ButtonYouPlay.tga \
+			graphics/all_ButtonYouPlaySilent.tga \
+			graphics/all_ButtonLearning.tga \
+			graphics/all_ButtonLearningSilent.tga \
+			graphics/all_ButtonPlayedHidden.tga \
 			extra/linthesia.desktop \
 			music/Popular/Gymnopedie.mid \
 			music/Popular/Jonh_Lennon_-_Imagine.mid \

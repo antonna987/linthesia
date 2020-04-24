@@ -34,6 +34,14 @@ struct ButtonState {
     hit = hovering && mouse.released.left;
   }
 
+  void SetX(int _x) {
+    x = _x;
+  }
+
+  void SetY(int _y) {
+    y = _y;
+  }
+
   // Simple mouse over
   bool hovering;
 
@@ -53,6 +61,8 @@ struct ButtonState {
 namespace Layout {
 
   void DrawTitle(Renderer &renderer, const std::string &title);
+  void DrawSubTitle(Renderer &renderer, const std::string &title);
+
   void DrawHorizontalRule(Renderer &renderer, int state_width, int y);
   void DrawButton(Renderer &renderer,
                   const ButtonState &button,

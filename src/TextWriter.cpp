@@ -13,7 +13,8 @@
 #include "UserSettings.h"
 
 #include <map>
-#include <X11/Xlib.h>
+#include <iostream>
+#include <fontconfig/fontconfig.h>
 
 using namespace std;
 
@@ -44,29 +45,75 @@ TextWriter::TextWriter(int in_x, int in_y, Renderer &in_renderer,
   point_size = size;
 
   if (font_size_lookup[size] == 0) {
+    GLuint list_start = glGenLists(128);
+    Pango::FontDescription *font_desc = NULL;
+    Glib::RefPtr<Pango::Font> ret;
 
-    // Get font from user settings
-    if (fontname.empty()) {
-      string key = "font_desc";
-      fontname = UserSetting::Get(key, "");
+    // Try to get the requested name first
+    font_desc = new Pango::FontDescription(STRING(fontname << " " << in_size));
+    ret = Gdk::GL::Font::use_pango_font(*font_desc, 0, 128, list_start);
 
-      // Or set it if there is no default
-      if (fontname.empty()) {
-        fontname = get_default_font();
-        UserSetting::Set(key, fontname);
+    if (!ret) {
+      delete font_desc;
+      font_desc = NULL;
+      // Get font from user settings
+      const std::string userfontname = UserSetting::Get("font_desc", "");
+      if (!userfontname.empty()) {
+        font_desc = new Pango::FontDescription(STRING(userfontname << " " << in_size));
+        ret = Gdk::GL::Font::use_pango_font(*font_desc, 0, 128, list_start);
       }
     }
 
-    int list_start = glGenLists(128);
-    fontname = STRING(fontname << " " << in_size);
-    Pango::FontDescription* font_desc = new Pango::FontDescription(fontname);
-    Glib::RefPtr<Pango::Font> ret = Gdk::GL::Font::use_pango_font(*font_desc, 0, 128, list_start);
-    if (!ret)
-      throw LinthesiaError("An error ocurred while trying to use use_pango_font() with "
-                           "font '" + fontname + "'");
+    if (!ret) {
+      delete font_desc;
+      font_desc = NULL;
+      // Get font from system settings
+      const std::string sysfontname = get_default_font();
+      if (!sysfontname.empty()) {
+        font_desc = new Pango::FontDescription(STRING(sysfontname << " " << in_size));
+        ret = Gdk::GL::Font::use_pango_font(*font_desc, 0, 128, list_start);
+      } 
+    }
 
-    font_size_lookup[size] = list_start;
-    font_lookup[size] = font_desc;
+    if (!ret) {
+  	FcConfig *config = FcInitLoadConfigAndFonts();
+	FcPattern* pat = FcPatternCreate();
+	FcObjectSet* os = FcObjectSetBuild (FC_FAMILY, FC_STYLE, FC_LANG, FC_FILE, (char *) 0);
+	FcFontSet* fs = FcFontList(config, pat, os);
+
+	printf("Warning : cannot load fonts so far : trying EVERY font you have: %d\n", fs->nfont);
+	for (int i=0; fs && i < fs->nfont; ++i) {
+	   FcPattern* font = fs->fonts[i];
+	   FcChar8 *file, *style, *family;
+	   if (FcPatternGetString(font, FC_FILE, 0, &file) == FcResultMatch &&
+	       FcPatternGetString(font, FC_FAMILY, 0, &family) == FcResultMatch &&
+	       FcPatternGetString(font, FC_STYLE, 0, &style) == FcResultMatch) {
+		      //printf("Filename: %s (family %s, style %s)\n", file, family, style);
+		      font_desc = new Pango::FontDescription(STRING((char *)family << " " << style << " 14" ));
+		      ret = Gdk::GL::Font::use_pango_font(*font_desc, 0, 128, list_start);
+		      //printf ("DEBUG : family = %d    -    ret=%d \n\n", family, ret);
+		      if (ret) {
+			  printf ("DEBUG : FOUND !!!!\n");
+                          font_size_lookup[size] = list_start;
+                          font_lookup[size] = font_desc;
+			  break;
+                      }
+
+            }
+      }
+    }
+    if (!ret) {
+       fprintf(stderr, "FATAL WARNING: An error ocurred while trying to use (any) pango font. \n"); // FIXME ?
+       // Trying to go without a working pango font.... 
+	    font_size_lookup[size] = list_start;
+	    font_lookup[size] = font_desc;
+      //     delete font_desc;
+      //     glDeleteLists(list_start, 128);
+      //     throw LinthesiaError("An error ocurred while trying to use pango font");
+     } else {
+	    font_size_lookup[size] = list_start;
+	    font_lookup[size] = font_desc;
+    }
   }
 }
 
@@ -83,8 +130,8 @@ TextWriter& TextWriter::next_line() {
 }
 
 TextWriter& Text::operator<<(TextWriter& tw) const {
-  int draw_x;
-  int draw_y;
+  int draw_x = 0;
+  int draw_y = 0;
   calculate_position_and_advance_cursor(tw, &draw_x, &draw_y);
 
   string narrow(m_text.begin(), m_text.end());
@@ -105,7 +152,6 @@ TextWriter& Text::operator<<(TextWriter& tw) const {
 }
 
 void Text::calculate_position_and_advance_cursor(TextWriter &tw, int *out_x, int *out_y) const  {
-
   Glib::RefPtr<Pango::Layout> layout = Pango::Layout::create(tw.renderer.m_pangocontext);
   layout->set_text(m_text);
   layout->set_font_description(*(font_lookup[tw.size]));
@@ -141,44 +187,24 @@ TextWriter& operator<<(TextWriter& tw, const unsigned long& l) { return tw << Te
 static
 const std::string get_default_font()
 {
-  // populate a vector of candidates with the most common choices
-  vector< string > allCandidates;
-  allCandidates.push_back("serif");
-  allCandidates.push_back("sans");
-  allCandidates.push_back("clean");
-  allCandidates.push_back("courier"); // Debian suggests using courier
+  std::string returnedFont;
 
-  vector< string >::const_iterator candidate;
-  const vector< string >::const_iterator end = allCandidates.end();
+  FcResult fcres;
+  FcConfig *config = FcInitLoadConfigAndFonts();
 
-  // retrieve all fonts from the X server
-  Display * const display = XOpenDisplay(NULL);
-  int nbFonts = 0, i = 0;
-  char ** const allFonts = XListFonts(display, "-*", 32767, &nbFonts);
+  FcPattern *pattern = FcPatternCreate();
+  //FcPattern *pattern = FcNameParse((const FcChar8*)"serif");
+  FcConfigSubstitute(config, pattern, FcMatchPattern);
+  FcDefaultSubstitute(pattern);
+  FcPattern *match = FcFontMatch(config, pattern, &fcres);
 
-  string returnedFont = (nbFonts > 0) ? allFonts[0] : "";
-
-  // check if we have a candidate, and returns it if we do
-  string currentFont;
-  bool found = false;
-  for (i = 0; i < nbFonts && !found; ++i)
-  {
-    currentFont = allFonts[i];
-
-    for (candidate = allCandidates.begin();
-         candidate != end && !found; ++candidate)
-    {
-      // any font that contains the name of the candidate ( "serif" ) will do
-      if (currentFont.find(*candidate) != string::npos)
-      {
-        returnedFont = *candidate;
-        found = true;
-      }
-    }
+  FcChar8 *family = NULL;
+  if (fcres == FcResultMatch) {
+    fcres = FcPatternGetString(match, FC_FAMILY, 0, &family);
+    returnedFont = (char *)family;
   }
-
-  XFreeFontNames(allFonts);
-  XCloseDisplay(display);
+  FcPatternDestroy(pattern);
+  FcConfigDestroy(config);
 
   return returnedFont;
 }
