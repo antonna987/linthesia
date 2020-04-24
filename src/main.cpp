@@ -43,9 +43,6 @@ using namespace std;
 
 GameStateManager* state_manager;
 
-char *sqlite_db_str;
-sqlite3 *db;
-
 const static string application_name = "Linthesia";
 const static string friendly_app_name = STRING("Linthesia " <<
                                                LinthesiaVersionString);
@@ -439,35 +436,6 @@ int main(int argc, char *argv[]) {
         Compatible::ShowError(description);
         return 1;
       }
-    }
-
-    /* Loading the Sqlite Library
-    */
-    string tmp_user_db_str = UserSetting::Get("sqlite_db", "");
-
-    if (tmp_user_db_str. empty() ) {
-        // no user pref : let's create one !
-        struct passwd *pw = getpwuid(getuid());
-        sqlite_db_str = strcat(pw->pw_dir, "/.local/linthesia");
-        const int dir_err = mkdir(sqlite_db_str, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-        if (-1 == dir_err)
-        {
-          fprintf(stderr, "Error creating directory : %s\n", sqlite_db_str);
-          exit(1);
-        }
-        sqlite_db_str = strcat(sqlite_db_str, "/music.sqlite");
-        UserSetting::Set("sqlite_db", sqlite_db_str);
-    } else {
-        // user pref exist : let's use it !
-        sqlite_db_str = (char*) tmp_user_db_str.c_str();
-    }
-
-    if (sqlite3_open(sqlite_db_str, &db)) {
-      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-      return(0);
-    } else {
-      // fprintf(stderr, "Opened database successfully\n");
-      sqlite3_close(db);
     }
 
     const int default_sw = 1024;

@@ -64,7 +64,7 @@ noinst_HEADERS +=		CompatibleSystem.h \
 
 linthesia_LDFLAGS = @GTKMM_LIBS@ @GCONFMM_LIBS@ @GTKGLEXTMM_LIBS@ @FONTCONFIG_LIBS@ @ALSA_LIBS@
 linthesia_LDADD = libmidi.la
-linthesia_CXXFLAGS = -std=c++11 -iquote -lsqlite3 $(srcdir)/libmidi
+linthesia_CXXFLAGS = -std=c++11 -iquote $(srcdir)/libmidi
 linthesia_CPPFLAGS = @GTKMM_CFLAGS@ @GCONFMM_CFLAGS@ @GTKGLEXTMM_CFLAGS@ @FONTCONFIG_CFLAGS@ @ALSA_CFLAGS@ -DGRAPHDIR="\"${graphdir}\"" -DMUSICDIR="\"${musicdir}\"" -DSCRIPTDIR="\"${scriptdir}\""
 
 ctags-dependencies:
