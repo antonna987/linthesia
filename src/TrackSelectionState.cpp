@@ -120,9 +120,9 @@ void TrackSelectionState::Init() {
   int tiles_on_this_line = 0;
   int tiles_on_this_page = 0;
   int current_y = starting_y;
-  
+
   m_track_tiles.clear();
-  
+
   for (size_t i = 0; i < m.Tracks().size(); ++i) {
 
     const MidiTrack &t = m.Tracks()[i];

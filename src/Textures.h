@@ -29,7 +29,7 @@ enum Texture {
   ButtonLearning,
   ButtonLearningSilent,
   ButtonPlayedHidden,
-  
+
   InputBox,
   OutputBox,
   SongBox,

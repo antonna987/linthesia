@@ -44,7 +44,7 @@ public:
   MidiEventListWithTrackId Update(microseconds_t delta_microseconds);
   void GoTo(microseconds_t microsecond_song_position);
 
-  void Reset(microseconds_t lead_in_microseconds, 
+  void Reset(microseconds_t lead_in_microseconds,
 	     microseconds_t lead_out_microseconds);
 
   microseconds_t GetSongPositionInMicroseconds() const {

@@ -145,10 +145,10 @@ Tga *GameStateManager::GetTexture(Texture tex_name, bool smooth) const {
 
 void GameStateManager::SetStateDimensions(int w, int h) {
   bool dirty = (m_screen_x != w && m_screen_y != h);
-  
+
   m_screen_x = w;
   m_screen_y = h;
-  
+
   if (dirty && m_current_state) {
     m_current_state->Resize();
   }

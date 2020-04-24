@@ -397,7 +397,7 @@ int main(int argc, char *argv[]) {
     if (file_opt.length() > 0 &&
         file_opt[file_opt.length()-1] == '\"')
       file_opt = file_opt.substr(0, file_opt.length() - 1);
-    
+
     Midi *midi = 0;
 
     // attempt to open the midi file given on the command line first
@@ -440,7 +440,7 @@ int main(int argc, char *argv[]) {
         return 1;
       }
     }
-    
+
     /* Loading the Sqlite Library
     */
     string tmp_user_db_str = UserSetting::Get("sqlite_db", "");
@@ -485,8 +485,8 @@ int main(int argc, char *argv[]) {
     window.set_title(friendly_app_name);
 
     struct stat st;
-    chdir (getExePath().c_str());  
-    
+    chdir (getExePath().c_str());
+
     if ( !stat((GRAPHDIR +  std::string("/linthesia.png")).c_str(),&st) == 0) {
        fprintf(stderr, "FATAL : File not found : make install not done ?\n");
        cout << (GRAPHDIR +  std::string("/linthesia.png")) << "\n";

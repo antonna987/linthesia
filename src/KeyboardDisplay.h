@@ -94,7 +94,7 @@ private:
 
   void DrawGuides(Renderer &renderer, int key_count, int key_width, int key_space,
                   int x_offset, int y, int y_offset) const;
-  void DrawBars(Renderer &renderer, int x, int y, int y_offset,       
+  void DrawBars(Renderer &renderer, int x, int y, int y_offset,
                 int y_roll_under, int final_width,
                 microseconds_t show_duration, microseconds_t current_time,
                 const MidiEventMicrosecondList &bar_line_usecs) const;

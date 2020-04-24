@@ -14,10 +14,10 @@ using namespace std;
 string LinthesiaError::GetErrorDescription() const {
 
   switch (m_error) {
-  case Error_StringSpecified: 
+  case Error_StringSpecified:
     return m_optional_string;
 
-  case Error_BadPianoType: 
+  case Error_BadPianoType:
     return "Bad piano type specified.";
 
   case Error_BadGameState:

@@ -12,8 +12,8 @@
 
 using namespace std;
 
-MidiEvent MidiEvent::ReadFromStream(istream &stream, 
-				    unsigned char last_status, 
+MidiEvent MidiEvent::ReadFromStream(istream &stream,
+				    unsigned char last_status,
 				    bool contains_delta_pulses) {
   MidiEvent ev;
 

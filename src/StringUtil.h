@@ -28,11 +28,11 @@ template<class string_type>
 const string_type StringLower(string_type s) {
 
   std::locale loc;
-  
+
   std::transform(s.begin(), s.end(), s.begin(),
 		 std::bind1st( std::mem_fun( &std::ctype<typename string_type::value_type>::tolower ),
 			       &std::use_facet< std::ctype<typename string_type::value_type> >( loc ) ) );
-  
+
   return s;
 }
 
@@ -41,7 +41,7 @@ template<class E, class T = std::char_traits<E>, class A = std::allocator<E> >
 class Widen : public std::unary_function< const std::string&, std::basic_string<E, T, A> > {
 
 public:
-  
+
   Widen(const std::locale& loc = std::locale()) : loc_(loc) {
     pCType_ = &std::use_facet<std::ctype<E> >(loc);
   }
@@ -52,7 +52,7 @@ public:
     typename std::basic_string<E, T, A>::size_type srcLen = str.length();
     const char* pSrcBeg = str.c_str();
     std::vector<E> tmp(srcLen);
-    
+
     pCType_->widen(pSrcBeg, pSrcBeg + srcLen, &tmp[0]);
     return std::basic_string<E, T, A>(&tmp[0], srcLen);
   }
@@ -61,7 +61,7 @@ private:
 
   std::locale loc_;
   const std::ctype<E>* pCType_;
-  
+
   // No copy-constructor or no assignment operator
   Widen(const Widen&);
   Widen& operator= (const Widen&);

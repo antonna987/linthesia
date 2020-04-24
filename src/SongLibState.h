@@ -21,14 +21,14 @@
 #endif
 
 const int ColumnMargin = Layout::ScreenMarginX * 2;
-const int PagesButtonsY = 
-    Layout::ScreenMarginY + Layout::ScreenMarginY / 2 + 
+const int PagesButtonsY =
+    Layout::ScreenMarginY + Layout::ScreenMarginY / 2 +
     SongTileHeight / 2 - Layout::ButtonHeight/2;
 
 class SongLibState : public GameState {
 
 public:
-    SongLibState(const SharedState &state): 
+    SongLibState(const SharedState &state):
     m_state(state){
     }
 

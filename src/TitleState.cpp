@@ -153,7 +153,7 @@ void TitleState::Resize() {
 
     m_output_tile->SetX((GetStateWidth() - DeviceTileWidth) / 2);
     m_output_tile->SetY(initial_y + each_y * 1);
-    
+
     m_input_tile->SetX((GetStateWidth() - DeviceTileWidth) / 2);
     m_input_tile->SetY(initial_y + each_y*2);
 

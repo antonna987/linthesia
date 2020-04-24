@@ -55,7 +55,7 @@ void SongLibState::Init() {
 int SongLibState::ContentLeft() {
     int columns_margins = ColumnMargin * (m_columns - 1);
     int columns_content = SongTileWidth * m_columns;
-    
+
     int content_left_slim  = (GetStateWidth()  - SongTileWidth) / 2;
 
     int content_left_wide  = (GetStateWidth()  - columns_content - columns_margins) / 2;
@@ -66,7 +66,7 @@ int SongLibState::ContentLeft() {
 int SongLibState::ContentRight() {
     int columns_margins = ColumnMargin * (m_columns - 1);
     int columns_content = SongTileWidth * m_columns;
-    
+
     int content_left_slim  = (GetStateWidth()  - SongTileWidth) / 2;
     int content_right_slim = content_left_slim + SongTileWidth;
 
@@ -95,7 +95,7 @@ string eraseSubstring(string subj, string erase) {
 
     if (i != std::string::npos)
         t.erase(i, s.length());
-    
+
     return t;
 }
 // https://stackoverflow.com/questions/1380463/sorting-a-vector-of-custom-objects
@@ -108,12 +108,12 @@ struct songtile_less_than_key
 };
 
 void SongLibState::UpdateSongTiles() {
-    
+
     m_song_tiles.clear();
 
     DIR *dir;
     struct dirent *ent;
-    
+
     if ((dir = opendir (m_current_path.c_str())) != NULL) {
 
         Tga* song_tile_graphics = GetTexture(SongBox);
@@ -173,7 +173,7 @@ void SongLibState::UpdateSongTilesPage() {
 
     int rows = (GetStateHeight() - initial_y - Layout::ScreenMarginY) / each_y;
     int tiles_per_page = rows * m_columns;
-    
+
     std::vector<SongTile>::size_type tiles_total = m_song_tiles.size();
     m_page_count = (tiles_per_page == 0 ? 0 : (tiles_total / tiles_per_page)) + 1;
 
@@ -318,9 +318,9 @@ void SongLibState::OpenTitleState(string path) {
 
 void SongLibState::Draw(Renderer &renderer) const {
 
-    Layout::DrawButton(renderer, m_back_button, 
+    Layout::DrawButton(renderer, m_back_button,
         m_state.midi ? GetTexture(ButtonBackToTitle) : GetTexture(ButtonExit));
-    
+
     if(m_current_page > 0) {
         Layout::DrawButton(renderer, m_prev_page_button, GetTexture(ButtonPageBack));
     }
@@ -335,7 +335,7 @@ void SongLibState::Draw(Renderer &renderer) const {
     Layout::DrawHorizontalRule(renderer,
                              GetStateWidth(),
                              Layout::ScreenMarginY);
-    
+
     for(std::vector<SongTile>::size_type i = 0; i < m_song_tiles.size(); i++) {
         if(m_song_tiles[i].IsVisible()) {
             renderer.ForceTexture(0);

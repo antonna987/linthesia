@@ -60,7 +60,7 @@ public:
     // to sort strings, we need to have string to sort
     // directories "first", right ?
     if (m_dir)
-      return ("first" + m_path); 
+      return ("first" + m_path);
     else
       return ("second" + m_path);
   }

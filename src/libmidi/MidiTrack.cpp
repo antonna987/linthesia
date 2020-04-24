@@ -251,7 +251,7 @@ MidiEventList MidiTrack::Update(microseconds_t delta_microseconds) {
   return evs;
 }
 
-void MidiTrack::GoTo(microseconds_t microsecond_song_position) { 
+void MidiTrack::GoTo(microseconds_t microsecond_song_position) {
   m_running_microseconds = microsecond_song_position;
   m_last_event = -1;
   m_notes_remaining = static_cast<unsigned int>(m_note_set.size());

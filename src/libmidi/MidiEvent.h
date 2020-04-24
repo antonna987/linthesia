@@ -21,7 +21,7 @@ struct MidiEventSimple {
     status(0), byte1(0), byte2(0) {
   }
 
-  MidiEventSimple(unsigned char s, unsigned char b1, unsigned char b2) : 
+  MidiEventSimple(unsigned char s, unsigned char b1, unsigned char b2) :
     status(s), byte1(b1), byte2(b2) {
   }
 
@@ -33,7 +33,7 @@ struct MidiEventSimple {
 class MidiEvent {
 public:
 
-  static MidiEvent ReadFromStream(std::istream &stream, 
+  static MidiEvent ReadFromStream(std::istream &stream,
 				  unsigned char last_status,
 				  bool contains_delta_pulses = true);
 
@@ -47,7 +47,7 @@ public:
     m_status(0), m_data1(0), m_data2(0), m_tempo_uspqn(0) {
   }
 
-  // Returns true if the event could be expressed in a simple event.  (So, 
+  // Returns true if the event could be expressed in a simple event.  (So,
   // this will return false for Meta and SysEx events.)
   bool GetSimpleEvent(MidiEventSimple *simple) const;
 

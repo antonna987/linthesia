@@ -72,7 +72,7 @@ TextWriter::TextWriter(int in_x, int in_y, Renderer &in_renderer,
       if (!sysfontname.empty()) {
         font_desc = new Pango::FontDescription(STRING(sysfontname << " " << in_size));
         ret = Gdk::GL::Font::use_pango_font(*font_desc, 0, 128, list_start);
-      } 
+      }
     }
 
     if (!ret) {
@@ -104,7 +104,7 @@ TextWriter::TextWriter(int in_x, int in_y, Renderer &in_renderer,
     }
     if (!ret) {
        fprintf(stderr, "FATAL WARNING: An error ocurred while trying to use (any) pango font. \n"); // FIXME ?
-       // Trying to go without a working pango font.... 
+       // Trying to go without a working pango font....
 	    font_size_lookup[size] = list_start;
 	    font_lookup[size] = font_desc;
       //     delete font_desc;
