@@ -129,11 +129,6 @@ void PlayingState::Init() {
     printf("Set maximal key to %d\n", MaxPlayableNote);
   }
 
-  // This many microseconds of the song will
-  // be shown on the screen at once
-  const static microseconds_t DefaultShowDurationMicroseconds = 3250000;
-  m_show_duration = DefaultShowDurationMicroseconds;
-
   m_keyboard = new KeyboardDisplay(KeyboardSize88, GetStateWidth() - Layout::ScreenMarginX*2, CalcKeyboardHeight());
 
   // Hide the mouse cursor while we're playing
