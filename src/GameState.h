@@ -11,6 +11,7 @@
 
 #include <exception>
 #include <string>
+#include <unordered_set>
 #include <map>
 
 #include "Textures.h"
@@ -40,34 +41,6 @@ private:
 };
 
 class GameStateManager;
-
-enum GameKey {
-
-  // Magic numbers (used in this app only)
-  // Key combinations are packed into "unsigned integer"
-  // So, each key should set its own bit
-  KeySpace =   0x0001, //   0
-  KeyEscape =  0x0002, //  10
-  KeyUp =      0x0004, // 100 and so on
-  KeyDown =    0x0008,
-  KeyLeft =    0x0010,
-  KeyRight =   0x0020,
-  KeyEnter =   0x0040,
-
-  KeyF6 =      0x0080,
-
-  KeyGreater = 0x0100,
-  KeyLess =    0x0200,
-
-  KeyForward  = 0x0400,
-  KeyBackward = 0x0800,
-
-  KeyVolumeUp    = 0x1000,
-  KeyVolumeDown  = 0x2000
-
-  // = 0x4000
-  // = 0x8000
-};
 
 enum MouseButton {
 
@@ -161,7 +134,7 @@ protected:
   Tga *GetTexture(Texture tex_name, bool smooth = false) const;
 
   // These are usable inside Update()
-  bool IsKeyPressed(GameKey key) const;
+  bool IsKeyPressed(const std::string& key_name) const;
   const MouseInfo &Mouse() const;
 
 private:
@@ -188,8 +161,6 @@ public:
     m_next_state(0),
     m_current_state(0),
     m_last_milliseconds(Compatible::GetMilliseconds()),
-    m_key_presses(0),
-    m_last_key_presses(0),
     m_inside_update(false),
     m_fps(500.0),
     m_show_fps(false),
@@ -204,9 +175,9 @@ public:
   // from this point forward.
   void SetInitialState(GameState *first_state);
 
-  void KeyPress(GameKey key);
-  bool IsKeyPressed(GameKey key) const;
-  bool IsKeyReleased(GameKey key) const;
+  bool KeyPress(const std::string& key_name);
+  bool IsKeyPressed(const std::string& key_name) const;
+  bool IsKeyReleased(const std::string& key_name) const;
 
   void MousePress(MouseButton button);
   void MouseRelease(MouseButton button);
@@ -230,8 +201,8 @@ private:
   GameState *m_current_state;
 
   unsigned long m_last_milliseconds;
-  unsigned long m_key_presses;
-  unsigned long m_last_key_presses;
+  std::unordered_set<std::string> m_keys_pressed;
+  std::unordered_set<std::string> m_last_keys_pressed;
 
   bool m_inside_update;
 

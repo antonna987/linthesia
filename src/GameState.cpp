@@ -12,6 +12,7 @@
 #include "CompatibleSystem.h"
 #include "Tga.h"
 #include "OSGraphics.h"
+#include "UserSettings.h"
 
 // For FPS display
 #include "TextWriter.h"
@@ -98,12 +99,12 @@ int GameState::GetStateHeight() const {
   return m_manager->GetStateHeight();
 }
 
-bool GameState::IsKeyPressed(GameKey key) const {
+bool GameState::IsKeyPressed(const std::string& key_name) const {
 
   if (!m_manager)
     throw GameStateError("Cannot determine key presses if manager not set!");
 
-  return m_manager->IsKeyPressed(key);
+  return m_manager->IsKeyPressed(key_name);
 }
 
 const MouseInfo &GameState::Mouse() const {
@@ -154,18 +155,17 @@ void GameStateManager::SetStateDimensions(int w, int h) {
   }
 }
 
-void GameStateManager::KeyPress(GameKey key) {
-  m_key_presses |= static_cast<unsigned long>(key);
+bool GameStateManager::KeyPress(const std::string& key_name) {
+  m_keys_pressed.insert(key_name);
+  return UserSetting::keys_all().count(key_name);
 }
 
-bool GameStateManager::IsKeyPressed(GameKey key) const {
-
-   return ( (m_key_presses & static_cast<unsigned long>(key)) != 0);
+bool GameStateManager::IsKeyPressed(const std::string& key_name) const {
+  return m_keys_pressed.count(key_name);
 }
 
-bool GameStateManager::IsKeyReleased(GameKey key) const {
-  return (!IsKeyPressed(key) &&
-          ((m_last_key_presses & static_cast<unsigned long>(key)) != 0));
+bool GameStateManager::IsKeyReleased(const std::string& key_name) const {
+  return !IsKeyPressed(key_name) && m_last_keys_pressed.count(key_name);
 }
 
 void GameStateManager::MousePress(MouseButton button) {
@@ -248,7 +248,7 @@ void GameStateManager::Update(bool skip_this_update) {
     return;
 
   m_fps.Frame(delta);
-  if (IsKeyReleased(KeyF6))
+  if (IsKeyReleased(UserSetting::key_show_fps()))
     m_show_fps = !m_show_fps;
 
   if (m_next_state && m_current_state) {
@@ -282,8 +282,8 @@ void GameStateManager::Update(bool skip_this_update) {
   m_inside_update = false;
 
   // Reset our keypresses for the next frame
-  m_last_key_presses = m_key_presses;
-  m_key_presses = 0;
+  std::swap(m_keys_pressed, m_last_keys_pressed);
+  m_keys_pressed.clear();
 
   // Reset our mouse clicks for the next frame
   m_mouse.newPress = MouseButtons();

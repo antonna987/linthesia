@@ -460,45 +460,45 @@ void PlayingState::Update() {
     }
   }
 
-  if(IsKeyPressed(KeyGreater))
+  if(IsKeyPressed(UserSetting::key_note_offset_inc()))
     m_note_offset += 12;
 
-  if(IsKeyPressed(KeyLess))
+  if(IsKeyPressed(UserSetting::key_note_offset_dec()))
     m_note_offset -= 12;
 
-  if (IsKeyPressed(KeyUp)) {
+  if (IsKeyPressed(UserSetting::key_show_duration_dec())) {
     m_state.show_duration.decrease();
   }
 
-  if (IsKeyPressed(KeyDown)) {
+  if (IsKeyPressed(UserSetting::key_show_duration_inc())) {
     m_state.show_duration.increase();
   }
 
-  if (IsKeyPressed(KeyLeft)) {
+  if (IsKeyPressed(UserSetting::key_song_speed_dec())) {
     m_state.song_speed -= 10;
     if (m_state.song_speed < 0)
       m_state.song_speed = 0;
   }
 
-  if (IsKeyPressed(KeyRight)) {
+  if (IsKeyPressed(UserSetting::key_song_speed_inc())) {
     m_state.song_speed += 10;
     if (m_state.song_speed > 400)
       m_state.song_speed = 400;
   }
 
-  if (IsKeyPressed(KeyVolumeDown)) {
+  if (IsKeyPressed(UserSetting::key_base_volume_dec())) {
     m_state.base_volume -= 0.1;
     if (m_state.base_volume < 0)
       m_state.base_volume = 0;
   }
 
-  if (IsKeyPressed(KeyVolumeUp)) {
+  if (IsKeyPressed(UserSetting::key_base_volume_inc())) {
     m_state.base_volume += 0.1;
     if (m_state.base_volume > 2) // Maximum volume is 200%
       m_state.base_volume = 2;
   }
 
-  if (IsKeyPressed(KeyForward)) {
+  if (IsKeyPressed(UserSetting::key_rewind_fwd())) {
     microseconds_t cur_time = m_state.midi->GetSongPositionInMicroseconds();
     microseconds_t new_time = cur_time + std::stoi(UserSetting::rewind_step());
     m_state.midi->GoTo(new_time);
@@ -516,7 +516,7 @@ void PlayingState::Update() {
     m_retry_start = new_time;
   }
   else
-  if (IsKeyPressed(KeyBackward)) {
+  if (IsKeyPressed(UserSetting::key_rewind_bwd())) {
     microseconds_t cur_time = m_state.midi->GetSongPositionInMicroseconds();
     microseconds_t new_time = cur_time - std::stoi(UserSetting::rewind_step());
     m_state.midi->GoTo(new_time);
@@ -600,10 +600,10 @@ void PlayingState::Update() {
     }
   }
 
-  if (IsKeyPressed(KeySpace))
+  if (IsKeyPressed(UserSetting::key_pause()))
     m_paused = !m_paused;
 
-  if (IsKeyPressed(KeyEscape)) {
+  if (IsKeyPressed(UserSetting::key_quit())) {
     if (m_state.midi_out)
       m_state.midi_out->Reset();
 

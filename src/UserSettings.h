@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UserSettingsIO.h"
+#include <unordered_set>
 
 #ifndef MUSICDIR
 #define MUSICDIR "../music/"
@@ -19,6 +20,9 @@
 #define DEFINE_SETTING(SETTING_NAME, DEFAULT_VALUE)             \
     DEFINE_GETTER(SETTING_NAME, DEFAULT_VALUE);                 \
     DEFINE_SETTER(SETTING_NAME);
+
+#define DEFINE_KEY(KEY_NAME, DEFAULT_KEY)                       \
+    DEFINE_GETTER(KEY_NAME, DEFAULT_KEY);
 
 template<typename IO>
 struct UserSettingImpl {
@@ -39,10 +43,55 @@ struct UserSettingImpl {
     DEFINE_SETTING(show_duration_step, "250000");
     DEFINE_SETTING(show_duration_min, "250000");
     DEFINE_SETTING(show_duration_max, "10000000");
+
+    DEFINE_KEY(key_show_fps, "F6");
+    DEFINE_KEY(key_quit, "Escape");
+    DEFINE_KEY(key_continue, "Return");
+    DEFINE_KEY(key_pause, "space");
+    DEFINE_KEY(key_note_offset_inc, "greater");
+    DEFINE_KEY(key_note_offset_dec, "less");
+    DEFINE_KEY(key_show_duration_inc, "Down");
+    DEFINE_KEY(key_show_duration_dec, "Up");
+    DEFINE_KEY(key_song_speed_inc, "Right");
+    DEFINE_KEY(key_song_speed_dec, "Left");
+    DEFINE_KEY(key_base_volume_inc, "bracketright");
+    DEFINE_KEY(key_base_volume_dec, "bracketlefts");
+    DEFINE_KEY(key_rewind_fwd, "Page_Down");
+    DEFINE_KEY(key_rewind_bwd, "Page_Up");
+    DEFINE_KEY(key_down, "Down");
+    DEFINE_KEY(key_up, "Up");
+    DEFINE_KEY(key_left, "Left");
+    DEFINE_KEY(key_right, "Right");
+
+    static const auto& keys_all() {
+        static std::unordered_set<std::string> keys;
+        if (keys.empty()) {
+            keys.insert(key_show_fps());
+            keys.insert(key_quit());
+            keys.insert(key_continue());
+            keys.insert(key_pause());
+            keys.insert(key_note_offset_inc());
+            keys.insert(key_note_offset_dec());
+            keys.insert(key_show_duration_inc());
+            keys.insert(key_show_duration_dec());
+            keys.insert(key_song_speed_inc());
+            keys.insert(key_song_speed_dec());
+            keys.insert(key_base_volume_inc());
+            keys.insert(key_base_volume_dec());
+            keys.insert(key_rewind_fwd());
+            keys.insert(key_rewind_bwd());
+            keys.insert(key_down());
+            keys.insert(key_up());
+            keys.insert(key_left());
+            keys.insert(key_right());
+        }
+        return keys;
+    }
 };
 
 using UserSetting = UserSettingImpl<UserSettingsIO>;
 
+#undef DEFINE_KEY
 #undef DEFINE_SETTING
 #undef DEFINE_SETTER
 #undef DEFINE_GETTER

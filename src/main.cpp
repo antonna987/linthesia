@@ -221,34 +221,7 @@ bool DrawingArea::on_key_press(GdkEventKey* event) {
     return true;
   }
 
-  switch (event->keyval) {
-  case GDK_Up:       state_manager->KeyPress(KeyUp);      break;
-  case GDK_Down:     state_manager->KeyPress(KeyDown);    break;
-  case GDK_Left:     state_manager->KeyPress(KeyLeft);    break;
-  case GDK_Right:    state_manager->KeyPress(KeyRight);   break;
-  case GDK_space:    state_manager->KeyPress(KeySpace);   break;
-  case GDK_Return:   state_manager->KeyPress(KeyEnter);   break;
-  case GDK_Escape:   state_manager->KeyPress(KeyEscape);  break;
-
-  // show FPS
-  case GDK_F6:       state_manager->KeyPress(KeyF6);      break;
-
-  // increase/decrease octave
-  case GDK_greater:  state_manager->KeyPress(KeyGreater); break;
-  case GDK_less:     state_manager->KeyPress(KeyLess);    break;
-
-  // +/- 5 seconds
-  case GDK_Page_Down:state_manager->KeyPress(KeyForward);  break;
-  case GDK_Page_Up:  state_manager->KeyPress(KeyBackward); break;
-
-  case GDK_bracketleft:  state_manager->KeyPress(KeyVolumeDown); break; // [
-  case GDK_bracketright: state_manager->KeyPress(KeyVolumeUp);   break; // ]
-
-  default:
-    return false;
-  }
-
-  return true;
+  return state_manager->KeyPress(gdk_keyval_name(event->keyval));
 }
 
 bool DrawingArea::on_key_release(GdkEventKey* event) {

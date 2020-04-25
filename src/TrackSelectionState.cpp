@@ -202,7 +202,7 @@ void TrackSelectionState::Update() {
   m_continue_button.Update(MouseInfo(Mouse()));
   m_back_button.Update(MouseInfo(Mouse()));
 
-  if (IsKeyPressed(KeyEscape) || m_back_button.hit) {
+  if (IsKeyPressed(UserSetting::key_quit()) || m_back_button.hit) {
 
     if (m_state.midi_out)
       m_state.midi_out->Reset();
@@ -255,7 +255,7 @@ void TrackSelectionState::Update() {
   }
 
 
-  if (IsKeyPressed(KeyEnter) || m_continue_button.hit) {
+  if (IsKeyPressed(UserSetting::key_continue()) || m_continue_button.hit) {
 
     if (m_state.midi_out)
       m_state.midi_out->Reset();
@@ -266,14 +266,14 @@ void TrackSelectionState::Update() {
     return;
   }
 
-  if (IsKeyPressed(KeyDown) || IsKeyPressed(KeyRight)) {
+  if (IsKeyPressed(UserSetting::key_down()) || IsKeyPressed(UserSetting::key_right())) {
     m_current_page++;
 
     if (m_current_page == m_page_count)
       m_current_page = 0;
   }
 
-  if (IsKeyPressed(KeyUp) || IsKeyPressed(KeyLeft)) {
+  if (IsKeyPressed(UserSetting::key_up()) || IsKeyPressed(UserSetting::key_left())) {
     m_current_page--;
 
     if (m_current_page < 0)

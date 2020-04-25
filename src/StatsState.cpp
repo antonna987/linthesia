@@ -43,12 +43,12 @@ void StatsState::Update() {
   m_continue_button.Update(mouse);
   m_back_button.Update(mouse);
 
-  if (IsKeyPressed(KeyEscape) || m_back_button.hit) {
+  if (IsKeyPressed(UserSetting::key_quit()) || m_back_button.hit) {
     ChangeState(new TrackSelectionState(m_state));
     return;
   }
 
-  if (IsKeyPressed(KeyEnter) || m_continue_button.hit) {
+  if (IsKeyPressed(UserSetting::key_continue()) || m_continue_button.hit) {
     ChangeState(new PlayingState(m_state));
     return;
   }

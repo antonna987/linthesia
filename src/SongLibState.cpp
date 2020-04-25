@@ -210,7 +210,7 @@ void SongLibState::Update() {
 
     m_back_button.Update(mouse);
 
-    if (IsKeyPressed(KeyEscape) || m_back_button.hit) {
+    if (IsKeyPressed(UserSetting::key_quit()) || m_back_button.hit) {
         if (m_state.midi) {
             ChangeState(new TitleState(m_state));
         }
@@ -232,7 +232,7 @@ void SongLibState::Update() {
     if (m_current_page + 1 < m_page_count) {
         m_next_page_button.Update(mouse);
 
-        if (IsKeyPressed(KeyRight) || m_next_page_button.hit) {
+        if (IsKeyPressed(UserSetting::key_right()) || m_next_page_button.hit) {
             m_current_page++;
             UpdateSongTilesPage();
         }
@@ -241,7 +241,7 @@ void SongLibState::Update() {
     if (m_current_page > 0) {
         m_prev_page_button.Update(mouse);
 
-        if (IsKeyPressed(KeyLeft) || m_prev_page_button.hit) {
+        if (IsKeyPressed(UserSetting::key_left()) || m_prev_page_button.hit) {
             m_current_page--;
             UpdateSongTilesPage();
         }
@@ -251,7 +251,7 @@ void SongLibState::Update() {
     if (path_title.length() > 0) {
         m_path_up_button.Update(mouse);
 
-        if (IsKeyPressed(KeyBackward) || m_path_up_button.hit) {
+        if (IsKeyPressed(UserSetting::key_up()) || m_path_up_button.hit) {
             m_skip_next_mouse_up = true;
             m_current_page = 0;
             GoUpDirectory();

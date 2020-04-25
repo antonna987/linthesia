@@ -303,7 +303,7 @@ void TitleState::Update() {
    else
      m_last_input_note_name = "";
 
-   if (IsKeyPressed(KeyEscape) || m_back_button.hit) {
+   if (IsKeyPressed(UserSetting::key_quit()) || m_back_button.hit) {
      delete m_state.midi_out;
      m_state.midi_out = 0;
 
@@ -317,7 +317,7 @@ void TitleState::Update() {
      return;
    }
 
-   if (IsKeyPressed(KeyEnter) || m_continue_button.hit) {
+   if (IsKeyPressed(UserSetting::key_continue()) || m_continue_button.hit) {
 
      if (m_state.midi_out)
        m_state.midi_out->Reset();
