@@ -1,48 +1,70 @@
 #pragma once
 
 #include "UserSettingsIO.h"
+#include <sstream>
 #include <unordered_set>
 
 #ifndef MUSICDIR
 #define MUSICDIR "../music/"
 #endif
 
-#define DEFINE_GETTER(SETTING_NAME, DEFAULT_VALUE)              \
-    static auto SETTING_NAME() {                                \
-        return IO::Get((#SETTING_NAME), (DEFAULT_VALUE));       \
+template <typename T>
+inline std::string to_string(const T& t) {
+    return t;
+}
+
+template <>
+inline std::string to_string<int>(const int& t) {
+    return std::to_string(t);
+}
+
+template <typename T>
+inline T from_string(const std::string& str) {
+    return str;
+}
+
+template <>
+inline int from_string<int>(const std::string& str) {
+    return std::stoi(str);
+}
+
+#define DEFINE_GETTER(SETTING_NAME, TYPE, DEFAULT_VALUE)                                    \
+    static TYPE SETTING_NAME() {                                                            \
+        std::string value_str = IO::Get((#SETTING_NAME), to_string<TYPE>(DEFAULT_VALUE));   \
+        return from_string<TYPE>(value_str);                                                \
     }
 
-#define DEFINE_SETTER(SETTING_NAME)                             \
-    static void set_##SETTING_NAME(const std::string& value) {  \
-        IO::Set((#SETTING_NAME), value);                        \
+#define DEFINE_SETTER(SETTING_NAME, TYPE)                                                   \
+    static void set_##SETTING_NAME(const TYPE& value) {                                     \
+        IO::Set((#SETTING_NAME), to_string<TYPE>(value));                                   \
     }
 
-#define DEFINE_SETTING(SETTING_NAME, DEFAULT_VALUE)             \
-    DEFINE_GETTER(SETTING_NAME, DEFAULT_VALUE);                 \
-    DEFINE_SETTER(SETTING_NAME);
+#define DEFINE_SETTING(SETTING_NAME, TYPE, DEFAULT_VALUE)                                   \
+    DEFINE_GETTER(SETTING_NAME, TYPE, DEFAULT_VALUE);                                       \
+    DEFINE_SETTER(SETTING_NAME, TYPE);
 
-#define DEFINE_KEY(KEY_NAME, DEFAULT_KEY)                       \
-    DEFINE_GETTER(KEY_NAME, DEFAULT_KEY);
+#define DEFINE_KEY(KEY_NAME, DEFAULT_KEY)                                                   \
+    DEFINE_GETTER(KEY_NAME, std::string, DEFAULT_KEY);
 
 template<typename IO>
 struct UserSettingImpl {
-    DEFINE_SETTING(song_lib_path, MUSICDIR);
-    DEFINE_SETTING(song_lib_last_dir, MUSICDIR);
-    DEFINE_SETTING(last_file, "");
-    DEFINE_SETTING(default_music_directory, "");
-    DEFINE_SETTING(font_desc, "");
-    DEFINE_SETTING(last_output_device, "");
-    DEFINE_SETTING(last_input_device, "");
-    DEFINE_SETTING(min_key, "0");
-    DEFINE_SETTING(max_key, "120");
-    DEFINE_SETTING(refresh_rate, "30");
-    DEFINE_SETTING(lead_in, "5500000");
-    DEFINE_SETTING(lead_out, "1000000");
-    DEFINE_SETTING(rewind_step, "5000000");
-    DEFINE_SETTING(show_duration, "3250000");
-    DEFINE_SETTING(show_duration_step, "250000");
-    DEFINE_SETTING(show_duration_min, "250000");
-    DEFINE_SETTING(show_duration_max, "10000000");
+    DEFINE_SETTING(song_lib_path, std::string, MUSICDIR);
+    DEFINE_SETTING(song_lib_last_dir, std::string, MUSICDIR);
+    DEFINE_SETTING(last_file, std::string, "");
+    DEFINE_SETTING(default_music_directory, std::string, "");
+    DEFINE_SETTING(font_desc, std::string, "");
+    DEFINE_SETTING(last_output_device, std::string, "");
+    DEFINE_SETTING(last_input_device, std::string, "");
+    DEFINE_SETTING(min_key, int, 0);
+    DEFINE_SETTING(max_key, int, 120);
+    DEFINE_SETTING(refresh_rate, int, 30);
+    DEFINE_SETTING(lead_in, int, 5500000);
+    DEFINE_SETTING(lead_out, int, 1000000);
+    DEFINE_SETTING(rewind_step, int, 5000000);
+    DEFINE_SETTING(show_duration, int, 3250000);
+    DEFINE_SETTING(show_duration_step, int, 250000);
+    DEFINE_SETTING(show_duration_min, int, 250000);
+    DEFINE_SETTING(show_duration_max, int, 10000000);
 
     DEFINE_KEY(key_show_fps, "F6");
     DEFINE_KEY(key_quit, "Escape");

@@ -52,9 +52,7 @@ void PlayingState::SetupNoteState() {
 }
 
 bool PlayingState::isNoteInPlayableRange(int note_number) {
-  int MinPlayableNote = std::stoi(UserSetting::min_key());
-  int MaxPlayableNote = std::stoi(UserSetting::max_key());
-  return note_number >= MinPlayableNote && note_number <= MaxPlayableNote;
+  return note_number >= UserSetting::min_key() && note_number <= UserSetting::max_key();
 }
 
 void PlayingState::ResetSong() {
@@ -68,7 +66,7 @@ void PlayingState::ResetSong() {
   if (!m_state.midi)
     return;
 
-  m_state.midi->Reset(std::stoi(UserSetting::lead_in()), std::stoi(UserSetting::lead_out()));
+  m_state.midi->Reset(UserSetting::lead_in(), UserSetting::lead_out());
 
   m_notes = m_state.midi->Notes();
   m_notes_history.clear();
@@ -500,7 +498,7 @@ void PlayingState::Update() {
 
   if (IsKeyPressed(UserSetting::key_rewind_fwd())) {
     microseconds_t cur_time = m_state.midi->GetSongPositionInMicroseconds();
-    microseconds_t new_time = cur_time + std::stoi(UserSetting::rewind_step());
+    microseconds_t new_time = cur_time + UserSetting::rewind_step();
     m_state.midi->GoTo(new_time);
     m_required_notes.clear();
 
@@ -518,7 +516,7 @@ void PlayingState::Update() {
   else
   if (IsKeyPressed(UserSetting::key_rewind_bwd())) {
     microseconds_t cur_time = m_state.midi->GetSongPositionInMicroseconds();
-    microseconds_t new_time = cur_time - std::stoi(UserSetting::rewind_step());
+    microseconds_t new_time = cur_time - UserSetting::rewind_step();
     m_state.midi->GoTo(new_time);
     m_required_notes.clear();
 

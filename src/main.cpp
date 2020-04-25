@@ -472,7 +472,7 @@ int main(int argc, char *argv[]) {
 
     Glib::signal_timeout().connect(
       sigc::mem_fun(da, &DrawingArea::GameLoop),
-      1000 / std::stoi(UserSetting::refresh_rate()));
+      1000 / UserSetting::refresh_rate());
 
     main_loop.run(window);
     window_state.Deactivate();

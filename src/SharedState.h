@@ -50,19 +50,19 @@ struct SongStatistics {
 class ShowDuration {
 public:
   ShowDuration() :
-    duration(std::stoi(UserSetting::show_duration()))
+    duration(UserSetting::show_duration())
     {}
 
   void increase() {
-    duration += std::stoi(UserSetting::show_duration_step());
-    duration = std::min(duration, std::stoi(UserSetting::show_duration_max()));
-    UserSetting::set_show_duration(std::to_string(duration));
+    duration += UserSetting::show_duration_step();
+    duration = std::min(duration, UserSetting::show_duration_max());
+    UserSetting::set_show_duration(duration);
   }
 
   void decrease() {
-    duration -= std::stoi(UserSetting::show_duration_step());
-    duration = std::max(duration, std::stoi(UserSetting::show_duration_min()));
-    UserSetting::set_show_duration(std::to_string(duration));
+    duration -= UserSetting::show_duration_step();
+    duration = std::max(duration, UserSetting::show_duration_min());
+    UserSetting::set_show_duration(duration);
   }
 
   operator microseconds_t() const {
