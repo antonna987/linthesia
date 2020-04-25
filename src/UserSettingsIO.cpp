@@ -12,6 +12,7 @@ std::string UserSettingsIO::Get(const std::string& setting, const std::string& d
   auto& instance = Instance();
   std::string result = instance.m_gconf->get_string(instance.m_app_name + "/" + setting);
   if (result.empty()) {
+    Set(setting, default_value);
     return default_value;
   }
   return result;
