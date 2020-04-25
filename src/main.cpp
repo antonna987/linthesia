@@ -500,7 +500,7 @@ int main(int argc, char *argv[]) {
     // get refresh rate from user settings
     int default_rate = 30;
 
-    string user_rate = UserSetting::Get("refresh_rate", "");
+    string user_rate = UserSetting::refresh_rate();
 
     if (! user_rate.empty() && std::stoi(user_rate) > default_rate) {
       fprintf (stdout, "WARNING :: Your refresh_rate is set to %d. I recommand using %d.\n", std::stoi(user_rate), default_rate);
@@ -509,29 +509,29 @@ int main(int argc, char *argv[]) {
 
     if (user_rate.empty()) {
       user_rate = STRING(default_rate);
-      UserSetting::Set("refresh_rate", user_rate);
+      UserSetting::set_refresh_rate(user_rate);
     }
     else {
       istringstream iss(user_rate);
       if (not (iss >> default_rate)) {
         Compatible::ShowError("Invalid setting for 'refresh_rate' key.\n\nReset to default value when reload.");
-        UserSetting::Set("refresh_rate", "");
+        UserSetting::set_refresh_rate("");
       }
     }
 
     Glib::signal_timeout().connect(sigc::mem_fun(da, &DrawingArea::GameLoop), 1000/std::stoi(user_rate));
 
-    UserSetting::Set("min_key", "");
-    UserSetting::Set("max_key", "");
+    UserSetting::set_min_key("");
+    UserSetting::set_max_key("");
 
     if (cmdOptionExists(argv, argv+argc, "--min-key")) {
       string min_key = STRING(getCmdOption(argv, argv + argc, "--min-key"));
-      UserSetting::Set("min_key", min_key);
+      UserSetting::set_min_key(min_key);
     }
 
     if (cmdOptionExists(argv, argv+argc, "--max-key")) {
       string max_key = STRING(getCmdOption(argv, argv + argc, "--max-key"));
-      UserSetting::Set("max_key", max_key);
+      UserSetting::set_max_key(max_key);
     }
 
 

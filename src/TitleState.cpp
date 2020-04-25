@@ -26,10 +26,7 @@
 
 using namespace std;
 
-const static string OutputDeviceKey = "last_output_device";
 const static string OutputKeySpecialDisabled = "[no output device]";
-
-const static string InputDeviceKey = "last_input_device";
 const static string InputKeySpecialDisabled = "[no input device]";
 
 TitleState::~TitleState() {
@@ -51,8 +48,8 @@ void TitleState::Init() {
       GetStateHeight() - Layout::ScreenMarginY/2 - Layout::ButtonHeight/2,
       Layout::ButtonWidth, Layout::ButtonHeight);
 
-   string last_output_device = UserSetting::Get(OutputDeviceKey, "");
-   string last_input_device = UserSetting::Get(InputDeviceKey, "");
+   string last_output_device = UserSetting::last_output_device();
+   string last_input_device = UserSetting::last_input_device();
 
    // midi_out could be in one of three states right now:
    //    1. We just started and were passed a null MidiCommOut pointer
@@ -224,10 +221,10 @@ void TitleState::Update() {
       m_state.midi_out = new MidiCommOut(output_id);
       m_state.midi->Reset(0,0);
 
-      UserSetting::Set(OutputDeviceKey, m_state.midi_out->GetDeviceDescription().name);
+      UserSetting::set_last_output_device(m_state.midi_out->GetDeviceDescription().name);
     }
     else
-      UserSetting::Set(OutputDeviceKey, OutputKeySpecialDisabled);
+      UserSetting::set_last_output_device(OutputKeySpecialDisabled);
 
   }
 
@@ -266,7 +263,7 @@ void TitleState::Update() {
 
        try {
          m_state.midi_in = new MidiCommIn(input_id);
-         UserSetting::Set(InputDeviceKey, m_state.midi_in->GetDeviceDescription().name);
+         UserSetting::set_last_input_device(m_state.midi_in->GetDeviceDescription().name);
        }
 
        catch (MidiErrorCode) {
@@ -275,7 +272,7 @@ void TitleState::Update() {
      }
 
      else
-       UserSetting::Set(InputDeviceKey, InputKeySpecialDisabled);
+       UserSetting::set_last_input_device(InputKeySpecialDisabled);
 
    }
 

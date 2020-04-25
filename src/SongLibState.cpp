@@ -15,8 +15,6 @@
 
 using namespace std;
 
-const static string SONG_LIB_DIR_SETTINGS_KEY = "song_lib_last_dir";
-
 void SongLibState::Init() {
 
     m_back_button = ButtonState(
@@ -24,8 +22,8 @@ void SongLibState::Init() {
         Compatible::GetDisplayHeight() - Layout::ScreenMarginY/2 - Layout::ButtonHeight/2,
         Layout::ButtonWidth, Layout::ButtonHeight);
 
-    m_base_path = UserSetting::Get("song_lib_path", MUSICDIR);
-    m_current_path = UserSetting::Get(SONG_LIB_DIR_SETTINGS_KEY, MUSICDIR);
+    m_base_path = UserSetting::song_lib_path();
+    m_current_path = UserSetting::song_lib_last_dir();
     // since it is unconfortable to crash when no file is present, let's test it now
     struct stat st;
     if ( (!stat(m_current_path.c_str(),&st) == 0) || (! st.st_mode & S_IFDIR != 0) ) {
@@ -274,7 +272,7 @@ void SongLibState::Update() {
             if (m_song_tiles[i].IsDir()) {
                 m_skip_next_mouse_up = true;
                 m_current_path = m_song_tiles[i].GetPath();
-                UserSetting::Set(SONG_LIB_DIR_SETTINGS_KEY, m_current_path);
+                UserSetting::set_song_lib_last_dir(m_current_path);
                 UpdateSongTiles();
             }
             else {
@@ -288,7 +286,7 @@ void SongLibState::Update() {
 
 void SongLibState::GoUpDirectory() {
     m_current_path = m_current_path.substr(0, m_current_path.find_last_of("\\/"));
-    UserSetting::Set(SONG_LIB_DIR_SETTINGS_KEY, m_current_path);
+    UserSetting::set_song_lib_last_dir(m_current_path);
     UpdateSongTiles();
 }
 
