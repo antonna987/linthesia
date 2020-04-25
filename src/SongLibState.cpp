@@ -22,12 +22,11 @@ void SongLibState::Init() {
         Compatible::GetDisplayHeight() - Layout::ScreenMarginY/2 - Layout::ButtonHeight/2,
         Layout::ButtonWidth, Layout::ButtonHeight);
 
-    m_base_path = UserSetting::song_lib_path();
     m_current_path = UserSetting::song_lib_last_dir();
     // since it is unconfortable to crash when no file is present, let's test it now
     struct stat st;
     if ( (!stat(m_current_path.c_str(),&st) == 0) || (! st.st_mode & S_IFDIR != 0) ) {
-	    m_current_path = m_base_path;
+	    m_current_path = UserSetting::song_lib_path();
     }
 
     m_current_page = 0;
@@ -248,7 +247,7 @@ void SongLibState::Update() {
         }
     }
 
-    string path_title = eraseSubstring(m_current_path, m_base_path);
+    string path_title = eraseSubstring(m_current_path, UserSetting::song_lib_path());
     if (path_title.length() > 0) {
         m_path_up_button.Update(mouse);
 
@@ -341,7 +340,7 @@ void SongLibState::Draw(Renderer &renderer) const {
         }
     }
 
-    string path_title = eraseSubstring(m_current_path, m_base_path);
+    string path_title = eraseSubstring(m_current_path, UserSetting::song_lib_path());
     if (path_title.length() > 0) {
         // Draw mode text
         TextWriter title(Layout::ScreenMarginX + Layout::ButtonWidth + ColumnMargin, Layout::ScreenMarginY / 2 - 6, renderer, false, 14);
