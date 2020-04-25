@@ -6,45 +6,29 @@
 // Adaptation to GNU/Linux by Oscar Aceña
 // See COPYING for license information
 
-#include <gconfmm.h>
+#include "UserSettings.h"
 
-#include "StringUtil.h"
-
-using namespace std;
-
-namespace UserSetting {
-
-  static bool g_initialized(false);
-  static string g_app_name("");
-  static Glib::RefPtr<Gnome::Conf::Client> gconf;
-
-  void Initialize(const string &app_name) {
-    if (g_initialized)
-      return;
-
-    Gnome::Conf::init();
-
-    gconf = Gnome::Conf::Client::get_default_client();
-    g_app_name = "/apps/" + app_name;
-    g_initialized = true;
+std::string UserSetting::Get(const std::string& setting, const std::string& default_value) {
+  auto& instance = Instance();
+  std::string result = instance.m_gconf->get_string(instance.m_app_name + "/" + setting);
+  if (result.empty()) {
+    return default_value;
   }
+  return result;
+}
 
-  string Get(const string &setting, const string &default_value) {
-    if (!g_initialized)
-      return default_value;
+void UserSetting::Set(const std::string& setting, const std::string& value) {
+  auto& instance = Instance();
+  instance.m_gconf->set(instance.m_app_name + "/" + setting, value);
+}
 
-    string result = gconf->get_string(g_app_name + "/" + setting);
-    if (result.empty())
-      return default_value;
+UserSetting::UserSetting(const std::string& app_name) {
+  Gnome::Conf::init();
+  m_gconf = Gnome::Conf::Client::get_default_client();
+  m_app_name = "/apps/" + app_name;
+}
 
-    return result;
-  }
-
-  void Set(const string &setting, const string &value) {
-    if (!g_initialized)
-      return;
-
-    gconf->set(g_app_name + "/" + setting, value);
-  }
-
-}; // End namespace
+UserSetting& UserSetting::Instance() {
+  static UserSetting user_setting("Linthesia");
+  return user_setting;
+}

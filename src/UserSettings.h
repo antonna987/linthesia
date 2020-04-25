@@ -6,21 +6,19 @@
 // Adaptation to GNU/Linux by Oscar Aceña
 // See COPYING for license information
 
-#ifndef __USER_SETTINGS_H
-#define __USER_SETTINGS_H
+#pragma once
 
+#include <gconfmm.h>
 #include <string>
 
-namespace UserSetting {
+struct UserSetting {
+   static std::string Get(const std::string& setting, const std::string& default_value);
+   static void Set(const std::string& setting, const std::string& value);
 
-   // This must be called exactly once before any of the following will work
-   void Initialize(const std::string &app_name);
+private:
+   UserSetting(const std::string& app_name);
+   static UserSetting& Instance();
 
-   std::string Get(const std::string &setting,
-		   const std::string &default_value);
-
-   void Set(const std::string &setting,
-	    const std::string &value);
+   Glib::RefPtr<Gnome::Conf::Client> m_gconf;
+   std::string m_app_name;
 };
-
-#endif // __USER_SETTINGS_H

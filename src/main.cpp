@@ -43,7 +43,6 @@ using namespace std;
 
 GameStateManager* state_manager;
 
-const static string application_name = "Linthesia";
 const static string friendly_app_name = STRING("Linthesia " <<
                                                LinthesiaVersionString);
 
@@ -374,8 +373,6 @@ int main(int argc, char *argv[]) {
 
   try {
     string file_opt("");
-
-    UserSetting::Initialize(application_name);
 
     if (cmdOptionExists(argv, argv+argc, "-f"))
       file_opt = string(getCmdOption(argv, argv + argc, "-f"));
