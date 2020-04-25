@@ -31,7 +31,7 @@ dist_linthesia_SOURCES =	CompatibleSystem.cpp \
 				PlayingState.cpp \
 				StringTile.cpp \
 				TitleState.cpp \
-				UserSettings.cpp \
+				UserSettingsIO.cpp \
 				SongLibState.cpp \
 				SongTile.cpp
 noinst_HEADERS +=		CompatibleSystem.h \
@@ -60,6 +60,7 @@ noinst_HEADERS +=		CompatibleSystem.h \
 				TrackSelectionState.h \
 				TrackTile.h \
 				UserSettings.h \
+				UserSettingsIO.h \
 				Version.h
 
 linthesia_LDFLAGS = @GTKMM_LIBS@ @GCONFMM_LIBS@ @GTKGLEXTMM_LIBS@ @FONTCONFIG_LIBS@ @ALSA_LIBS@

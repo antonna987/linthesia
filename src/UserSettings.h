@@ -1,24 +1,16 @@
-// -*- mode: c++; coding: utf-8 -*-
-
-// Linthesia
-
-// Copyright (c) 2007 Nicholas Piegdon
-// Adaptation to GNU/Linux by Oscar Aceña
-// See COPYING for license information
-
 #pragma once
 
-#include <gconfmm.h>
-#include <string>
+#include "UserSettingsIO.h"
 
-struct UserSetting {
-   static std::string Get(const std::string& setting, const std::string& default_value);
-   static void Set(const std::string& setting, const std::string& value);
+template<typename IO>
+struct UserSettingImpl {
+    static std::string Get(const std::string& setting, const std::string& default_value) {
+        return IO::Get(setting, default_value);
+    }
 
-private:
-   UserSetting(const std::string& app_name);
-   static UserSetting& Instance();
-
-   Glib::RefPtr<Gnome::Conf::Client> m_gconf;
-   std::string m_app_name;
+    static void Set(const std::string& setting, const std::string& value) {
+        return IO::Set(setting, value);
+    }
 };
+
+using UserSetting = UserSettingImpl<UserSettingsIO>;
