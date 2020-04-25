@@ -35,6 +35,10 @@ struct UserSettingImpl {
     DEFINE_SETTING(lead_in, "5500000");
     DEFINE_SETTING(lead_out, "1000000");
     DEFINE_SETTING(rewind_step, "5000000");
+    DEFINE_SETTING(show_duration, "3250000");
+    DEFINE_SETTING(show_duration_step, "250000");
+    DEFINE_SETTING(show_duration_min, "250000");
+    DEFINE_SETTING(show_duration_max, "10000000");
 };
 
 using UserSetting = UserSettingImpl<UserSettingsIO>;

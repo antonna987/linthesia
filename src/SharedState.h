@@ -16,6 +16,7 @@
 #include "MidiComm.h"
 #include "libmidi/Midi.h"
 #include "DpmsThread.h"
+#include "UserSettings.h"
 
 struct SongStatistics {
 
@@ -49,17 +50,19 @@ struct SongStatistics {
 class ShowDuration {
 public:
   ShowDuration() :
-    duration(DefaultShowDurationMicroseconds)
+    duration(std::stoi(UserSetting::show_duration()))
     {}
 
   void increase() {
-    duration += StepShowDurationMicroseconds;
-    duration = std::min(duration, MaxShowDurationMicroseconds);
+    duration += std::stoi(UserSetting::show_duration_step());
+    duration = std::min(duration, std::stoi(UserSetting::show_duration_max()));
+    UserSetting::set_show_duration(std::to_string(duration));
   }
 
   void decrease() {
-    duration -= StepShowDurationMicroseconds;
-    duration = std::max(duration, MinShowDurationMicroseconds);
+    duration -= std::stoi(UserSetting::show_duration_step());
+    duration = std::max(duration, std::stoi(UserSetting::show_duration_min()));
+    UserSetting::set_show_duration(std::to_string(duration));
   }
 
   operator microseconds_t() const {
@@ -67,12 +70,7 @@ public:
   }
 
 private:
-  static const microseconds_t DefaultShowDurationMicroseconds = 3250000;
-  static const microseconds_t StepShowDurationMicroseconds = 250000;
-  static const microseconds_t MinShowDurationMicroseconds = 250000;
-  static const microseconds_t MaxShowDurationMicroseconds = 10000000;
-
-  microseconds_t duration;
+  int duration;
 };
 
 struct SharedState {
