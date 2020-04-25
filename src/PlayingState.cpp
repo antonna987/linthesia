@@ -52,6 +52,8 @@ void PlayingState::SetupNoteState() {
 }
 
 bool PlayingState::isNoteInPlayableRange(int note_number) {
+  int MinPlayableNote = std::stoi(UserSetting::min_key());
+  int MaxPlayableNote = std::stoi(UserSetting::max_key());
   return note_number >= MinPlayableNote && note_number <= MaxPlayableNote;
 }
 
@@ -116,17 +118,6 @@ void PlayingState::Init() {
       m_look_ahead_you_play_note_count += m_state.midi->Tracks()[i].Notes().size();
       m_any_you_play_tracks = true;
     }
-  }
-
-  string min_key = UserSetting::min_key();
-  if (strtol(min_key.c_str(), NULL, 10) > 0) {
-    MinPlayableNote = strtol(min_key.c_str(), NULL, 10);
-    printf("Set minimal key to %d\n", MinPlayableNote);
-  }
-  string max_key = UserSetting::max_key();
-  if (strtol(max_key.c_str(), NULL, 10) > 0) {
-    MaxPlayableNote = strtol(max_key.c_str(), NULL, 10);
-    printf("Set maximal key to %d\n", MaxPlayableNote);
   }
 
   m_keyboard = new KeyboardDisplay(KeyboardSize88, GetStateWidth() - Layout::ScreenMarginX*2, CalcKeyboardHeight());

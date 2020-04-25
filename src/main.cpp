@@ -521,20 +521,6 @@ int main(int argc, char *argv[]) {
 
     Glib::signal_timeout().connect(sigc::mem_fun(da, &DrawingArea::GameLoop), 1000/std::stoi(user_rate));
 
-    UserSetting::set_min_key("");
-    UserSetting::set_max_key("");
-
-    if (cmdOptionExists(argv, argv+argc, "--min-key")) {
-      string min_key = STRING(getCmdOption(argv, argv + argc, "--min-key"));
-      UserSetting::set_min_key(min_key);
-    }
-
-    if (cmdOptionExists(argv, argv+argc, "--max-key")) {
-      string max_key = STRING(getCmdOption(argv, argv + argc, "--max-key"));
-      UserSetting::set_max_key(max_key);
-    }
-
-
     main_loop.run(window);
     window_state.Deactivate();
 

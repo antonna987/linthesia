@@ -79,9 +79,6 @@ private:
 
   bool m_paused;
 
-  int MinPlayableNote = 0;
-  int MaxPlayableNote = 120;
-
   KeyboardDisplay *m_keyboard;
   TranslatedNoteSet m_notes;
   TranslatedNoteSet m_notes_history;

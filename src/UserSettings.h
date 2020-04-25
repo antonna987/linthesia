@@ -29,8 +29,8 @@ struct UserSettingImpl {
     DEFINE_SETTING(font_desc, "");
     DEFINE_SETTING(last_output_device, "");
     DEFINE_SETTING(last_input_device, "");
-    DEFINE_SETTING(min_key, "");
-    DEFINE_SETTING(max_key, "");
+    DEFINE_SETTING(min_key, "0");
+    DEFINE_SETTING(max_key, "120");
     DEFINE_SETTING(refresh_rate, "");
 };
 
