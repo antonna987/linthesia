@@ -65,15 +65,10 @@ void PlayingState::ResetSong() {
   if (m_state.midi_in)
     m_state.midi_in->Reset();
 
-  // TODO: These should be moved to a configuration file
-  // along with ALL other "const static something" variables.
-  const static microseconds_t LeadIn = 5500000;
-  const static microseconds_t LeadOut = 1000000;
-
   if (!m_state.midi)
     return;
 
-  m_state.midi->Reset(LeadIn, LeadOut);
+  m_state.midi->Reset(std::stoi(UserSetting::lead_in()), std::stoi(UserSetting::lead_out()));
 
   m_notes = m_state.midi->Notes();
   m_notes_history.clear();
@@ -504,9 +499,8 @@ void PlayingState::Update() {
   }
 
   if (IsKeyPressed(KeyForward)) {
-    // Go 5 seconds forward
     microseconds_t cur_time = m_state.midi->GetSongPositionInMicroseconds();
-    microseconds_t new_time = cur_time + 5000000;
+    microseconds_t new_time = cur_time + std::stoi(UserSetting::rewind_step());
     m_state.midi->GoTo(new_time);
     m_required_notes.clear();
 
@@ -523,9 +517,8 @@ void PlayingState::Update() {
   }
   else
   if (IsKeyPressed(KeyBackward)) {
-    // Go 5 seconds back
     microseconds_t cur_time = m_state.midi->GetSongPositionInMicroseconds();
-    microseconds_t new_time = cur_time - 5000000;
+    microseconds_t new_time = cur_time - std::stoi(UserSetting::rewind_step());
     m_state.midi->GoTo(new_time);
     m_required_notes.clear();
 

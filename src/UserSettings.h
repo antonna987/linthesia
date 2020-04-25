@@ -32,6 +32,9 @@ struct UserSettingImpl {
     DEFINE_SETTING(min_key, "0");
     DEFINE_SETTING(max_key, "120");
     DEFINE_SETTING(refresh_rate, "30");
+    DEFINE_SETTING(lead_in, "5500000");
+    DEFINE_SETTING(lead_out, "1000000");
+    DEFINE_SETTING(rewind_step, "5000000");
 };
 
 using UserSetting = UserSettingImpl<UserSettingsIO>;
