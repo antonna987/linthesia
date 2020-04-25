@@ -497,29 +497,9 @@ int main(int argc, char *argv[]) {
       state_manager->SetInitialState(new SongLibState(state));
     }
 
-    // get refresh rate from user settings
-    int default_rate = 30;
-
-    string user_rate = UserSetting::refresh_rate();
-
-    if (! user_rate.empty() && std::stoi(user_rate) > default_rate) {
-      fprintf (stdout, "WARNING :: Your refresh_rate is set to %d. I recommand using %d.\n", std::stoi(user_rate), default_rate);
-      fprintf (stdout, "           You may update it using gconf-2.\n");
-    }
-
-    if (user_rate.empty()) {
-      user_rate = STRING(default_rate);
-      UserSetting::set_refresh_rate(user_rate);
-    }
-    else {
-      istringstream iss(user_rate);
-      if (not (iss >> default_rate)) {
-        Compatible::ShowError("Invalid setting for 'refresh_rate' key.\n\nReset to default value when reload.");
-        UserSetting::set_refresh_rate("");
-      }
-    }
-
-    Glib::signal_timeout().connect(sigc::mem_fun(da, &DrawingArea::GameLoop), 1000/std::stoi(user_rate));
+    Glib::signal_timeout().connect(
+      sigc::mem_fun(da, &DrawingArea::GameLoop),
+      1000 / std::stoi(UserSetting::refresh_rate()));
 
     main_loop.run(window);
     window_state.Deactivate();

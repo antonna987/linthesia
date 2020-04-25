@@ -31,7 +31,7 @@ struct UserSettingImpl {
     DEFINE_SETTING(last_input_device, "");
     DEFINE_SETTING(min_key, "0");
     DEFINE_SETTING(max_key, "120");
-    DEFINE_SETTING(refresh_rate, "");
+    DEFINE_SETTING(refresh_rate, "30");
 };
 
 using UserSetting = UserSettingImpl<UserSettingsIO>;
