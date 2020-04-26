@@ -78,6 +78,7 @@ private:
   double CalculateScoreMultiplier() const;
 
   bool m_paused;
+  bool m_loop = false;
 
   KeyboardDisplay *m_keyboard;
   TranslatedNoteSet m_notes;

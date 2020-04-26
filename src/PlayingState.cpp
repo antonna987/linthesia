@@ -601,6 +601,10 @@ void PlayingState::Update() {
   if (IsKeyPressed(UserSetting::key_pause()))
     m_paused = !m_paused;
 
+  if (IsKeyPressed(UserSetting::key_loop())) {
+    m_loop = !m_loop;
+  }
+
   if (IsKeyPressed(UserSetting::key_quit())) {
     if (m_state.midi_out)
       m_state.midi_out->Reset();
@@ -613,6 +617,11 @@ void PlayingState::Update() {
   }
 
   if (m_state.midi->IsSongOver()) {
+    if (m_loop) {
+      ResetSong();
+      return;
+    }
+
     if (m_state.midi_out)
       m_state.midi_out->Reset();
 
@@ -724,6 +733,10 @@ void PlayingState::Draw(Renderer &renderer) const {
   text_y += 30 + Layout::SmallFontSize;
   TextWriter time_text(Layout::ScreenMarginX + 39, text_y+2, renderer, false, Layout::SmallFontSize);
   time_text << STRING(current_time << " / " << total_time << percent_complete);
+
+  TextWriter loop(Layout::ScreenMarginX + 412, text_y + 2, renderer, false, Layout::SmallFontSize);
+  auto loop_color = m_loop ? Renderer::ToColor(45, 179, 0) : Renderer::ToColor(19, 77, 0);
+  loop << Text("LOOP", loop_color);
 
   // Draw a song progress bar along the top of the screen
   const int time_pb_width = static_cast<int>(m_state.midi->GetSongPercentageComplete() * (GetStateWidth() -

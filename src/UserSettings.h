@@ -70,6 +70,7 @@ struct UserSettingImpl {
     DEFINE_KEY(key_quit, "Escape");
     DEFINE_KEY(key_continue, "Return");
     DEFINE_KEY(key_pause, "space");
+    DEFINE_KEY(key_loop, "F5");
     DEFINE_KEY(key_note_offset_inc, "greater");
     DEFINE_KEY(key_note_offset_dec, "less");
     DEFINE_KEY(key_show_duration_inc, "Down");
@@ -92,6 +93,7 @@ struct UserSettingImpl {
             keys.insert(key_quit());
             keys.insert(key_continue());
             keys.insert(key_pause());
+            keys.insert(key_loop());
             keys.insert(key_note_offset_inc());
             keys.insert(key_note_offset_dec());
             keys.insert(key_show_duration_inc());
